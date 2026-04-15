@@ -152,7 +152,7 @@ export default function App() {
             {tab}
             <span style={{
               background: activeTab === tab ? TAB_COLORS[tab] : '#A62E2E',
-              color: '#F0EDE6',
+               color: '#FFFFFF',
               fontSize: '10px',
               fontWeight: '700',
               padding: '2px 7px',

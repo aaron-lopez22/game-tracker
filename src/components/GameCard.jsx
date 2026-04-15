@@ -176,7 +176,7 @@ function GameCard({ game, onEdit, onDelete }) {
               fontSize: '22px',
               letterSpacing: '1px',
               lineHeight: '1.1',
-              color: hovered ? '#8AA6A3' : '#F0EDE6',
+              color: hovered ? '#8AA6A3' : '#FFFFFF',
               cursor: 'pointer',
               transition: 'color 0.2s',
             }}
