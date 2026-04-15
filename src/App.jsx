@@ -6,11 +6,11 @@ import AddGameModal from './components/AddGameModal'
 const TABS = ['All', 'Playing', 'Completed', 'Backlog', 'Dropped']
 
 const TAB_COLORS = {
-  All: 'bg-[#4997D0]',
-  Playing: 'bg-[#4997D0]',
-  Completed: 'bg-green-600',
-  Backlog: 'bg-gray-400',
-  Dropped: 'bg-red-500',
+  All: '#127369',
+  Playing: '#127369',
+  Completed: '#127369',
+  Backlog: '#4C5958',
+  Dropped: '#A62E2E',
 }
 
 export default function App() {
@@ -44,67 +44,165 @@ export default function App() {
     setGames(games.filter(g => g.id !== id))
   }
 
-  const handleClose = () => {
-    setEditingGame(null)
-  }
-
   return (
-    <div className="min-h-screen p-8" style={{ backgroundColor: '#1a2a3a' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#10403B' }}>
+      <div className="scanline" />
 
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
-          <div className="w-2 h-10 bg-[#4997D0] rounded-full" />
-          <h1 className="text-4xl font-bold text-[#4997D0]">🎮 Game Tracker</h1>
-          <div className="w-2 h-10 bg-[#4997D0] rounded-full" />
+      <div style={{
+        borderBottom: '2px solid #127369',
+        padding: '28px 32px 20px',
+        display: 'flex',
+        alignItems: 'flex-end',
+        justifyContent: 'space-between',
+      }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+          <span style={{
+            fontSize: '11px',
+            fontWeight: '600',
+            letterSpacing: '4px',
+            color: '#8AA6A3',
+            textTransform: 'uppercase',
+          }}>
+            — personal collection —
+          </span>
+          <h1 className="bebas" style={{
+            fontSize: '56px',
+            letterSpacing: '3px',
+            lineHeight: '1',
+            color: '#F0EDE6',
+          }}>
+            GAME <span style={{ color: '#127369' }}>TRACKER</span>
+          </h1>
+          <span style={{
+            fontSize: '11px',
+            color: '#4C5958',
+            letterSpacing: '2px',
+            marginTop: '2px',
+          }}>
+            TRACK · PLAN · CONQUER
+          </span>
         </div>
+
         <button
           onClick={() => setShowAddModal(true)}
-          className="bg-[#4997D0] text-white px-5 py-2 rounded-lg font-semibold hover:bg-blue-600"
+          style={{
+            background: '#127369',
+            color: '#F0EDE6',
+            border: 'none',
+            padding: '10px 24px',
+            fontFamily: 'Barlow, sans-serif',
+            fontSize: '12px',
+            fontWeight: '600',
+            letterSpacing: '2px',
+            textTransform: 'uppercase',
+            cursor: 'pointer',
+            borderRadius: '3px',
+            transition: 'all 0.2s',
+          }}
+          onMouseEnter={e => {
+            e.target.style.background = '#8AA6A3'
+            e.target.style.color = '#10403B'
+            e.target.style.transform = 'translateY(-1px)'
+          }}
+          onMouseLeave={e => {
+            e.target.style.background = '#127369'
+            e.target.style.color = '#F0EDE6'
+            e.target.style.transform = 'translateY(0)'
+          }}
         >
-          + Add Game
+          + ADD GAME
         </button>
       </div>
 
-      <div className="flex gap-2 mb-8 flex-wrap">
+      <div style={{
+        background: '#0d3530',
+        padding: '0 32px',
+        display: 'flex',
+        borderBottom: '1px solid #127369',
+      }}>
         {TABS.map(tab => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-         className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
-  activeTab === tab
-    ? `${TAB_COLORS[tab]} text-white shadow-lg scale-105`
-    : 'bg-gray-700 text-white hover:bg-gray-600'
-}`}
+            style={{
+              padding: '14px 20px',
+              fontSize: '11px',
+              fontWeight: '600',
+              letterSpacing: '2px',
+              textTransform: 'uppercase',
+              color: activeTab === tab ? '#8AA6A3' : '#4C5958',
+              background: 'none',
+              border: 'none',
+              borderBottom: activeTab === tab ? '3px solid #127369' : '3px solid transparent',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              marginBottom: '-1px',
+              transition: 'color 0.2s',
+              fontFamily: 'Barlow, sans-serif',
+            }}
+            onMouseEnter={e => {
+              if (activeTab !== tab) e.currentTarget.style.color = '#8AA6A3'
+            }}
+            onMouseLeave={e => {
+              if (activeTab !== tab) e.currentTarget.style.color = '#4C5958'
+            }}
           >
             {tab}
-            <span className="ml-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+            <span style={{
+              background: activeTab === tab ? TAB_COLORS[tab] : '#A62E2E',
+              color: '#F0EDE6',
+              fontSize: '10px',
+              fontWeight: '700',
+              padding: '2px 7px',
+              borderRadius: '20px',
+              letterSpacing: '0',
+            }}>
               {countFor(tab)}
             </span>
           </button>
         ))}
       </div>
 
-      {filteredGames.length === 0 ? (
-        <div className="flex flex-col items-center justify-center mt-32 gap-4">
-          <p className="text-gray-500 text-xl">
-            {games.length === 0 ? 'No games yet' : `No games in ${activeTab}`}
-          </p>
-          <p className="text-gray-600 text-sm">
-            {games.length === 0 ? 'Click + Add Game to get started' : 'Add a game or switch tabs'}
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredGames.map(game => (
-            <GameCard
-              key={game.id}
-              game={game}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
-          ))}
-        </div>
-      )}
+      <div style={{ padding: '28px 32px' }}>
+        {filteredGames.length === 0 ? (
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginTop: '100px',
+            gap: '12px',
+          }}>
+            <p className="bebas" style={{
+              color: '#4C5958',
+              fontSize: '32px',
+              letterSpacing: '2px',
+            }}>
+              {games.length === 0 ? 'NO GAMES YET' : `NO GAMES IN ${activeTab.toUpperCase()}`}
+            </p>
+            <p style={{ color: '#4C5958', fontSize: '12px', letterSpacing: '1px' }}>
+              {games.length === 0 ? 'CLICK + ADD GAME TO GET STARTED' : 'ADD A GAME OR SWITCH TABS'}
+            </p>
+          </div>
+        ) : (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+            gap: '20px',
+          }}>
+            {filteredGames.map(game => (
+              <GameCard
+                key={game.id}
+                game={game}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
+        )}
+      </div>
 
       {showAddModal && (
         <AddGameModal
@@ -117,10 +215,9 @@ export default function App() {
         <EditGameModal
           game={editingGame}
           onSave={handleSave}
-          onClose={handleClose}
+          onClose={() => setEditingGame(null)}
         />
       )}
-
     </div>
   )
 }

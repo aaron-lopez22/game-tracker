@@ -24,27 +24,49 @@ function AddGameModal({ onAdd, onClose }) {
     setLoading(false)
   }
 
-  const handleSelect = (game) => {
-    setSelectedGame(game)
-    setResults([])
-    setQuery(game.name)
-  }
+const handleSelect = async (game) => {
+  setSelectedGame(game)
+  setResults([])
+  setQuery(game.name)
 
-  const handleAdd = () => {
-    if (!selectedGame) return
-    onAdd({
-      id: Date.now(),
-      title: selectedGame.name,
-      genre: selectedGame.genres?.[0]?.name || 'Unknown',
-      platform: selectedGame.platforms?.[0]?.platform?.name || 'Unknown',
-      cover: selectedGame.background_image,
-      status,
-      startDate,
-      targetDate,
-      notes,
-    })
-    onClose()
-  }
+  const res = await fetch(
+    `https://api.rawg.io/api/games/${game.id}?key=${API_KEY}`
+  )
+  const detail = await res.json()
+
+  setSelectedGame({
+    ...game,
+    description: detail.description_raw
+      ? detail.description_raw.slice(0, 200) + '...'
+      : '',
+    metacritic: detail.metacritic || null,
+    playtime: detail.playtime || null,
+    genres: detail.genres?.map(g => g.name) || [],
+    released: detail.released || '',
+    developer: detail.developers?.[0]?.name || '',
+  })
+}
+const handleAdd = () => {
+  if (!selectedGame) return
+  onAdd({
+    id: Date.now(),
+    title: selectedGame.name,
+    genre: selectedGame.genres?.[0] || 'Unknown',
+    genres: selectedGame.genres || [],
+    platform: selectedGame.platforms?.[0]?.platform?.name || 'Unknown',
+    cover: selectedGame.background_image,
+    description: selectedGame.description || '',
+    metacritic: selectedGame.metacritic || null,
+    playtime: selectedGame.playtime || null,
+    released: selectedGame.released || '',
+    developer: selectedGame.developer || '',
+    status,
+    startDate,
+    targetDate,
+    notes,
+  })
+  onClose()
+}
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
