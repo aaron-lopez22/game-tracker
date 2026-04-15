@@ -49,16 +49,24 @@ function AddGameModal({ onAdd, onClose }) {
     if (!selectedGame) return
     onAdd({
       id: Date.now(),
-      title: selectedGame.name,
-      genre: selectedGame.genres?.[0] || 'Unknown',
-      genres: selectedGame.genres || [],
-      platform: selectedGame.platforms?.[0]?.platform?.name || 'Unknown',
-      cover: selectedGame.background_image,
+      title: selectedGame.name || '',
+      genre: typeof selectedGame.genres?.[0] === 'object'
+        ? selectedGame.genres[0].name
+        : selectedGame.genres?.[0] || 'Unknown',
+      genres: (selectedGame.genres || []).map(g =>
+        typeof g === 'object' ? g.name : g
+      ),
+      platform: typeof selectedGame.platforms?.[0]?.platform === 'object'
+        ? selectedGame.platforms[0].platform.name
+        : selectedGame.platforms?.[0]?.platform || 'Unknown',
+      cover: selectedGame.background_image || null,
       description: selectedGame.description || '',
       metacritic: selectedGame.metacritic || null,
       playtime: selectedGame.playtime || null,
       released: selectedGame.released || '',
-      developer: selectedGame.developer || '',
+      developer: typeof selectedGame.developer === 'object'
+        ? selectedGame.developer?.name || ''
+        : selectedGame.developer || '',
       status,
       startDate,
       targetDate,
@@ -284,6 +292,7 @@ function AddGameModal({ onAdd, onClose }) {
                     color: '#4C5958',
                     letterSpacing: '0.5px',
                     fontFamily: 'Barlow, sans-serif',
+                    fontWeight: '500',
                   }}>
                     {game.released}
                   </p>
@@ -328,7 +337,10 @@ function AddGameModal({ onAdd, onClose }) {
                 {selectedGame.name}
               </p>
               <p style={{ fontSize: '11px', color: '#8AA6A3', fontWeight: '500' }}>
-                {selectedGame.genres?.[0]} · {selectedGame.platforms?.[0]?.platform?.name}
+                {typeof selectedGame.genres?.[0] === 'object'
+                  ? selectedGame.genres[0].name
+                  : selectedGame.genres?.[0] || ''
+                } · {selectedGame.platforms?.[0]?.platform?.name || ''}
               </p>
             </div>
           </div>

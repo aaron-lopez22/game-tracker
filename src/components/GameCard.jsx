@@ -328,21 +328,21 @@ function GameCard({ game, onEdit, onDelete }) {
             }}>
               <p style={{ fontSize: '9px', fontWeight: '700', letterSpacing: '2px', textTransform: 'uppercase', color: '#127369', marginBottom: '8px' }}>Genres</p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                {game.genres.map(g => (
-                  <span key={g} style={{
-                    background: '#0d3530',
-                    border: '1px solid rgba(18,115,105,0.4)',
-                    color: '#8AA6A3',
-                    fontSize: '10px',
-                    fontWeight: '600',
-                    letterSpacing: '1px',
-                    textTransform: 'uppercase',
-                    padding: '3px 8px',
-                    borderRadius: '2px',
-                  }}>
-                    {g}
-                  </span>
-                ))}
+           {game.genres.map((g, index) => (
+  <span key={index} style={{
+    background: '#0d3530',
+    border: '1px solid rgba(18,115,105,0.4)',
+    color: '#8AA6A3',
+    fontSize: '10px',
+    fontWeight: '600',
+    letterSpacing: '1px',
+    textTransform: 'uppercase',
+    padding: '3px 8px',
+    borderRadius: '2px',
+  }}>
+    {typeof g === 'object' ? g.name : g}
+  </span>
+))}
               </div>
             </div>
           )}
