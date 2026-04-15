@@ -69,13 +69,14 @@ export default function App() {
             fontSize: '56px',
             letterSpacing: '3px',
             lineHeight: '1',
-            color: '#F0EDE6',
+            color: '#FFFFFF',
           }}>
             GAME <span style={{ color: '#127369' }}>TRACKER</span>
           </h1>
           <span style={{
             fontSize: '11px',
-            color: '#4C5958',
+            fontWeight: '600',
+            color: '#8AA6A3',
             letterSpacing: '2px',
             marginTop: '2px',
           }}>
@@ -87,7 +88,7 @@ export default function App() {
           onClick={() => setShowAddModal(true)}
           style={{
             background: '#127369',
-            color: '#F0EDE6',
+            color: '#FFFFFF',
             border: 'none',
             padding: '10px 24px',
             fontFamily: 'Barlow, sans-serif',
@@ -100,14 +101,14 @@ export default function App() {
             transition: 'all 0.2s',
           }}
           onMouseEnter={e => {
-            e.target.style.background = '#8AA6A3'
-            e.target.style.color = '#10403B'
-            e.target.style.transform = 'translateY(-1px)'
+            e.currentTarget.style.background = '#8AA6A3'
+            e.currentTarget.style.color = '#10403B'
+            e.currentTarget.style.transform = 'translateY(-1px)'
           }}
           onMouseLeave={e => {
-            e.target.style.background = '#127369'
-            e.target.style.color = '#F0EDE6'
-            e.target.style.transform = 'translateY(0)'
+            e.currentTarget.style.background = '#127369'
+            e.currentTarget.style.color = '#FFFFFF'
+            e.currentTarget.style.transform = 'translateY(0)'
           }}
         >
           + ADD GAME
@@ -130,7 +131,7 @@ export default function App() {
               fontWeight: '600',
               letterSpacing: '2px',
               textTransform: 'uppercase',
-              color: activeTab === tab ? '#8AA6A3' : '#4C5958',
+              color: activeTab === tab ? '#FFFFFF' : '#4C5958',
               background: 'none',
               border: 'none',
               borderBottom: activeTab === tab ? '3px solid #127369' : '3px solid transparent',
@@ -152,7 +153,7 @@ export default function App() {
             {tab}
             <span style={{
               background: activeTab === tab ? TAB_COLORS[tab] : '#A62E2E',
-               color: '#FFFFFF',
+              color: '#FFFFFF',
               fontSize: '10px',
               fontWeight: '700',
               padding: '2px 7px',
@@ -182,7 +183,12 @@ export default function App() {
             }}>
               {games.length === 0 ? 'NO GAMES YET' : `NO GAMES IN ${activeTab.toUpperCase()}`}
             </p>
-            <p style={{ color: '#4C5958', fontSize: '12px', letterSpacing: '1px' }}>
+            <p style={{
+              color: '#4C5958',
+              fontSize: '12px',
+              fontWeight: '500',
+              letterSpacing: '1px',
+            }}>
               {games.length === 0 ? 'CLICK + ADD GAME TO GET STARTED' : 'ADD A GAME OR SWITCH TABS'}
             </p>
           </div>
