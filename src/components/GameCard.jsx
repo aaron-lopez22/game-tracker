@@ -201,30 +201,31 @@ function GameCard({ game, onEdit, onDelete }) {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <p style={{ fontSize: '11px', color: '#4C5958', letterSpacing: '0.5px' }}>
-            ◼ <span style={{ color: '#8AA6A3', fontWeight: '600' }}>{game.platform}</span>
+          <p style={{ fontSize: '12px', fontWeight: '500', color: '#8AA6A3', letterSpacing: '0.5px' }}>
+            ◼ <span style={{ color: '#FFFFFF', fontWeight: '600' }}>{game.platform}</span>
             &nbsp;·&nbsp;{game.genre}
           </p>
-          {game.startDate && (
-            <p style={{ fontSize: '11px', color: '#4C5958' }}>
-              Started: <span style={{ color: '#8AA6A3', fontWeight: '600' }}>{game.startDate}</span>
+          {game.start_date && (
+            <p style={{ fontSize: '12px', fontWeight: '500', color: '#8AA6A3' }}>
+              Started: <span style={{ color: '#FFFFFF', fontWeight: '600' }}>{game.start_date}</span>
             </p>
           )}
-          {game.targetDate && (
-            <p style={{ fontSize: '11px', color: '#4C5958' }}>
-              Finish by: <span style={{ color: '#8AA6A3', fontWeight: '600' }}>{game.targetDate}</span>
+          {game.target_date && (
+            <p style={{ fontSize: '12px', fontWeight: '500', color: '#8AA6A3' }}>
+              Finish by: <span style={{ color: '#FFFFFF', fontWeight: '600' }}>{game.target_date}</span>
             </p>
           )}
         </div>
 
         {game.notes && (
           <p style={{
-            fontSize: '11px',
-            color: '#4C5958',
+            fontSize: '12px',
+            fontWeight: '500',
+            color: '#8AA6A3',
             fontStyle: 'italic',
             borderTop: '1px solid rgba(18,115,105,0.3)',
             paddingTop: '8px',
-            lineHeight: '1.5',
+            lineHeight: '1.6',
           }}>
             {game.notes}
           </p>
@@ -237,14 +238,14 @@ function GameCard({ game, onEdit, onDelete }) {
             fontWeight: '600',
             letterSpacing: '2px',
             textTransform: 'uppercase',
-            color: '#127369',
+            color: '#8AA6A3',
             textAlign: 'center',
             paddingTop: '4px',
             cursor: 'pointer',
             transition: 'color 0.2s',
           }}
-          onMouseEnter={e => e.target.style.color = '#8AA6A3'}
-          onMouseLeave={e => e.target.style.color = '#127369'}
+          onMouseEnter={e => e.target.style.color = '#FFFFFF'}
+          onMouseLeave={e => e.target.style.color = '#8AA6A3'}
         >
           {expanded ? '▼ COLLAPSE' : '▶ EXPAND DETAILS'}
         </div>
@@ -272,21 +273,33 @@ function GameCard({ game, onEdit, onDelete }) {
                 borderRadius: '3px',
                 padding: '8px 10px',
               }}>
-                <p style={{ fontSize: '9px', fontWeight: '700', letterSpacing: '2px', textTransform: 'uppercase', color: '#127369', marginBottom: '6px' }}>Metacritic</p>
+                <p style={{
+                  fontSize: '9px',
+                  fontWeight: '700',
+                  letterSpacing: '2px',
+                  textTransform: 'uppercase',
+                  color: '#8AA6A3',
+                  marginBottom: '6px',
+                }}>
+                  Metacritic
+                </p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <div style={{
-                    width: '36px', height: '36px',
+                    width: '36px',
+                    height: '36px',
                     background: game.metacritic >= 75 ? '#127369' : '#8a7a12',
                     borderRadius: '3px',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                     fontFamily: 'Bebas Neue, sans-serif',
                     fontSize: '18px',
-                    color: '#F0EDE6',
+                    color: '#FFFFFF',
                   }}>
                     {game.metacritic}
                   </div>
-                  <span style={{ fontSize: '10px', color: '#8AA6A3', lineHeight: '1.4' }}>
-                    {game.metacritic >= 90 ? 'Universal\nAcclaim' : game.metacritic >= 75 ? 'Generally\nFavorable' : 'Mixed'}
+                  <span style={{ fontSize: '11px', fontWeight: '500', color: '#BFBFBF', lineHeight: '1.4' }}>
+                    {game.metacritic >= 90 ? 'Universal Acclaim' : game.metacritic >= 75 ? 'Generally Favorable' : 'Mixed'}
                   </span>
                 </div>
               </div>
@@ -299,8 +312,17 @@ function GameCard({ game, onEdit, onDelete }) {
                 borderRadius: '3px',
                 padding: '8px 10px',
               }}>
-                <p style={{ fontSize: '9px', fontWeight: '700', letterSpacing: '2px', textTransform: 'uppercase', color: '#127369', marginBottom: '6px' }}>Avg Playtime</p>
-                <p className="bebas" style={{ fontSize: '22px', color: '#F0EDE6', letterSpacing: '1px' }}>
+                <p style={{
+                  fontSize: '9px',
+                  fontWeight: '700',
+                  letterSpacing: '2px',
+                  textTransform: 'uppercase',
+                  color: '#8AA6A3',
+                  marginBottom: '6px',
+                }}>
+                  Avg Playtime
+                </p>
+                <p className="bebas" style={{ fontSize: '22px', color: '#FFFFFF', letterSpacing: '1px' }}>
                   {game.playtime} HRS
                 </p>
               </div>
@@ -314,8 +336,19 @@ function GameCard({ game, onEdit, onDelete }) {
               borderRadius: '3px',
               padding: '8px 10px',
             }}>
-              <p style={{ fontSize: '9px', fontWeight: '700', letterSpacing: '2px', textTransform: 'uppercase', color: '#127369', marginBottom: '6px' }}>About</p>
-              <p style={{ fontSize: '11px', color: '#8AA6A3', lineHeight: '1.6' }}>{game.description}</p>
+              <p style={{
+                fontSize: '9px',
+                fontWeight: '700',
+                letterSpacing: '2px',
+                textTransform: 'uppercase',
+                color: '#8AA6A3',
+                marginBottom: '6px',
+              }}>
+                About
+              </p>
+              <p style={{ fontSize: '12px', fontWeight: '500', color: '#BFBFBF', lineHeight: '1.6' }}>
+                {game.description}
+              </p>
             </div>
           )}
 
@@ -326,23 +359,32 @@ function GameCard({ game, onEdit, onDelete }) {
               borderRadius: '3px',
               padding: '8px 10px',
             }}>
-              <p style={{ fontSize: '9px', fontWeight: '700', letterSpacing: '2px', textTransform: 'uppercase', color: '#127369', marginBottom: '8px' }}>Genres</p>
+              <p style={{
+                fontSize: '9px',
+                fontWeight: '700',
+                letterSpacing: '2px',
+                textTransform: 'uppercase',
+                color: '#8AA6A3',
+                marginBottom: '8px',
+              }}>
+                Genres
+              </p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-           {game.genres.map((g, index) => (
-  <span key={index} style={{
-    background: '#0d3530',
-    border: '1px solid rgba(18,115,105,0.4)',
-    color: '#8AA6A3',
-    fontSize: '10px',
-    fontWeight: '600',
-    letterSpacing: '1px',
-    textTransform: 'uppercase',
-    padding: '3px 8px',
-    borderRadius: '2px',
-  }}>
-    {typeof g === 'object' ? g.name : g}
-  </span>
-))}
+                {game.genres.map((g, index) => (
+                  <span key={index} style={{
+                    background: '#0d3530',
+                    border: '1px solid rgba(18,115,105,0.4)',
+                    color: '#BFBFBF',
+                    fontSize: '10px',
+                    fontWeight: '600',
+                    letterSpacing: '1px',
+                    textTransform: 'uppercase',
+                    padding: '3px 8px',
+                    borderRadius: '2px',
+                  }}>
+                    {typeof g === 'object' ? g.name : g}
+                  </span>
+                ))}
               </div>
             </div>
           )}
@@ -354,8 +396,17 @@ function GameCard({ game, onEdit, onDelete }) {
               borderRadius: '3px',
               padding: '8px 10px',
             }}>
-              <p style={{ fontSize: '9px', fontWeight: '700', letterSpacing: '2px', textTransform: 'uppercase', color: '#127369', marginBottom: '4px' }}>Released</p>
-              <p style={{ fontSize: '11px', color: '#8AA6A3' }}>
+              <p style={{
+                fontSize: '9px',
+                fontWeight: '700',
+                letterSpacing: '2px',
+                textTransform: 'uppercase',
+                color: '#8AA6A3',
+                marginBottom: '4px',
+              }}>
+                Released
+              </p>
+              <p style={{ fontSize: '12px', fontWeight: '500', color: '#BFBFBF' }}>
                 {game.released} {game.developer && `· ${game.developer}`}
               </p>
             </div>
