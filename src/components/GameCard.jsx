@@ -1,10 +1,10 @@
 import { useState } from 'react'
 
 const STATUS_COLORS = {
-  Playing: { bg: '#127369', color: '#8AA6A3' },
-  Completed: { bg: 'transparent', color: '#127369', border: '1px solid #127369' },
-  Backlog: { bg: '#4C5958', color: '#F0EDE6' },
-  Dropped: { bg: 'transparent', color: '#A62E2E', border: '1px solid #A62E2E' },
+  Playing: { bg: '#F28B50', color: '#8C1C03' },
+  Completed: { bg: 'transparent', color: '#8C1C03', border: '1px solid #8C1C03' },
+  Backlog: { bg: '#8C1C03', color: '#F2EDDC' },
+  Dropped: { bg: 'transparent', color: '#BF3604', border: '1px solid #BF3604' },
 }
 
 function GameCard({ game, onEdit, onDelete }) {
@@ -19,41 +19,39 @@ function GameCard({ game, onEdit, onDelete }) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => { setHovered(false); setMenuOpen(false) }}
       style={{
-        background: '#0d3530',
-        border: hovered ? '1px solid #8AA6A3' : '1px solid #127369',
+        background: '#F2EDDC',
+        border: hovered ? '1px solid #8C1C03' : '1px solid #BF3604',
         borderRadius: '4px',
         overflow: 'hidden',
         position: 'relative',
         transform: hovered ? 'translateY(-3px)' : 'translateY(0)',
-        boxShadow: hovered ? '0 8px 24px rgba(18,115,105,0.25)' : 'none',
+        boxShadow: hovered ? '0 8px 24px rgba(140,28,3,0.3)' : 'none',
         transition: 'all 0.2s ease',
         cursor: 'pointer',
       }}
     >
-      {game.cover && (
+      {game.cover ? (
         <img
           src={game.cover}
           alt={game.title}
           style={{
             width: '100%',
-            height: expanded ? '160px' : '110px',
+            height: expanded ? '160px' : '140px',
             objectFit: 'cover',
             display: 'block',
             transition: 'height 0.3s ease',
           }}
         />
-      )}
-
-      {!game.cover && (
+      ) : (
         <div style={{
           width: '100%',
-          height: expanded ? '160px' : '110px',
-          background: '#127369',
+          height: expanded ? '160px' : '140px',
+          background: '#8C1C03',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           fontSize: '32px',
-          color: '#0d3530',
+          color: '#BF3604',
           transition: 'height 0.3s ease',
         }}>
           ◆
@@ -66,9 +64,9 @@ function GameCard({ game, onEdit, onDelete }) {
           position: 'absolute',
           top: '8px',
           right: '8px',
-          background: menuOpen ? '#127369' : 'rgba(13,53,48,0.9)',
-          color: '#8AA6A3',
-          border: '1px solid #127369',
+          background: menuOpen ? '#8C1C03' : 'rgba(242,237,220,0.9)',
+          color: menuOpen ? '#F2EDDC' : '#8C1C03',
+          border: '1px solid #8C1C03',
           borderRadius: '3px',
           padding: '2px 8px',
           fontSize: '14px',
@@ -79,13 +77,13 @@ function GameCard({ game, onEdit, onDelete }) {
           zIndex: 2,
         }}
         onMouseEnter={e => {
-          e.target.style.background = '#127369'
-          e.target.style.color = '#F0EDE6'
+          e.target.style.background = '#8C1C03'
+          e.target.style.color = '#F2EDDC'
         }}
         onMouseLeave={e => {
           if (!menuOpen) {
-            e.target.style.background = 'rgba(13,53,48,0.9)'
-            e.target.style.color = '#8AA6A3'
+            e.target.style.background = 'rgba(242,237,220,0.9)'
+            e.target.style.color = '#8C1C03'
           }
         }}
       >
@@ -97,8 +95,8 @@ function GameCard({ game, onEdit, onDelete }) {
           position: 'absolute',
           top: '36px',
           right: '8px',
-          background: '#0d3530',
-          border: '1px solid #127369',
+          background: '#F2EDDC',
+          border: '1px solid #8C1C03',
           borderRadius: '3px',
           zIndex: 10,
           overflow: 'hidden',
@@ -107,59 +105,29 @@ function GameCard({ game, onEdit, onDelete }) {
           <button
             onClick={(e) => { e.stopPropagation(); onEdit(game); setMenuOpen(false) }}
             style={{
-              display: 'block',
-              width: '100%',
-              textAlign: 'left',
-              padding: '10px 14px',
-              fontSize: '11px',
-              fontWeight: '600',
-              letterSpacing: '1.5px',
-              textTransform: 'uppercase',
-              color: '#8AA6A3',
-              background: 'none',
-              border: 'none',
-              borderBottom: '1px solid rgba(18,115,105,0.3)',
-              cursor: 'pointer',
-              fontFamily: 'Barlow, sans-serif',
-              transition: 'all 0.15s',
+              display: 'block', width: '100%', textAlign: 'left',
+              padding: '10px 14px', fontSize: '11px', fontWeight: '600',
+              letterSpacing: '1.5px', textTransform: 'uppercase',
+              color: '#8C1C03', background: 'none', border: 'none',
+              borderBottom: '1px solid rgba(140,28,3,0.2)',
+              cursor: 'pointer', fontFamily: 'Barlow, sans-serif', transition: 'all 0.15s',
             }}
-            onMouseEnter={e => {
-              e.target.style.background = '#127369'
-              e.target.style.color = '#F0EDE6'
-            }}
-            onMouseLeave={e => {
-              e.target.style.background = 'none'
-              e.target.style.color = '#8AA6A3'
-            }}
+            onMouseEnter={e => { e.target.style.background = '#8C1C03'; e.target.style.color = '#F2EDDC' }}
+            onMouseLeave={e => { e.target.style.background = 'none'; e.target.style.color = '#8C1C03' }}
           >
             ✏ Edit
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); onDelete(game.id); setMenuOpen(false) }}
             style={{
-              display: 'block',
-              width: '100%',
-              textAlign: 'left',
-              padding: '10px 14px',
-              fontSize: '11px',
-              fontWeight: '600',
-              letterSpacing: '1.5px',
-              textTransform: 'uppercase',
-              color: '#A62E2E',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              fontFamily: 'Barlow, sans-serif',
-              transition: 'all 0.15s',
+              display: 'block', width: '100%', textAlign: 'left',
+              padding: '10px 14px', fontSize: '11px', fontWeight: '600',
+              letterSpacing: '1.5px', textTransform: 'uppercase',
+              color: '#BF3604', background: 'none', border: 'none',
+              cursor: 'pointer', fontFamily: 'Barlow, sans-serif', transition: 'all 0.15s',
             }}
-            onMouseEnter={e => {
-              e.target.style.background = 'rgba(166,46,46,0.15)'
-              e.target.style.color = '#ff6b6b'
-            }}
-            onMouseLeave={e => {
-              e.target.style.background = 'none'
-              e.target.style.color = '#A62E2E'
-            }}
+            onMouseEnter={e => { e.target.style.background = 'rgba(191,54,4,0.1)'; e.target.style.color = '#8C1C03' }}
+            onMouseLeave={e => { e.target.style.background = 'none'; e.target.style.color = '#BF3604' }}
           >
             ✕ Delete
           </button>
@@ -167,65 +135,50 @@ function GameCard({ game, onEdit, onDelete }) {
       )}
 
       <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px' }}>
           <h2
             className="bebas"
             onClick={() => setExpanded(!expanded)}
             style={{
-              fontSize: '22px',
-              letterSpacing: '1px',
-              lineHeight: '1.1',
-              color: hovered ? '#8AA6A3' : '#FFFFFF',
-              cursor: 'pointer',
-              transition: 'color 0.2s',
+              fontSize: '22px', letterSpacing: '1px', lineHeight: '1.1',
+              color: hovered ? '#BF3604' : '#8C1C03',
+              cursor: 'pointer', transition: 'color 0.2s',
             }}
           >
             {game.title}
           </h2>
           <span style={{
-            fontSize: '9px',
-            fontWeight: '700',
-            letterSpacing: '1.5px',
-            textTransform: 'uppercase',
-            padding: '3px 9px',
-            borderRadius: '2px',
-            whiteSpace: 'nowrap',
-            flexShrink: 0,
-            background: status.bg,
-            color: status.color,
-            border: status.border || 'none',
+            fontSize: '9px', fontWeight: '700', letterSpacing: '1.5px',
+            textTransform: 'uppercase', padding: '3px 9px', borderRadius: '2px',
+            whiteSpace: 'nowrap', flexShrink: 0,
+            background: status.bg, color: status.color, border: status.border || 'none',
           }}>
             {game.status}
           </span>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <p style={{ fontSize: '12px', fontWeight: '500', color: '#8AA6A3', letterSpacing: '0.5px' }}>
-            ◼ <span style={{ color: '#FFFFFF', fontWeight: '600' }}>{game.platform}</span>
+          <p style={{ fontSize: '12px', fontWeight: '500', color: '#BF3604', letterSpacing: '0.5px' }}>
+            ◼ <span style={{ color: '#8C1C03', fontWeight: '600' }}>{game.platform}</span>
             &nbsp;·&nbsp;{game.genre}
           </p>
           {game.start_date && (
-            <p style={{ fontSize: '12px', fontWeight: '500', color: '#8AA6A3' }}>
-              Started: <span style={{ color: '#FFFFFF', fontWeight: '600' }}>{game.start_date}</span>
+            <p style={{ fontSize: '12px', fontWeight: '500', color: '#BF3604' }}>
+              Started: <span style={{ color: '#8C1C03', fontWeight: '600' }}>{game.start_date}</span>
             </p>
           )}
           {game.target_date && (
-            <p style={{ fontSize: '12px', fontWeight: '500', color: '#8AA6A3' }}>
-              Finish by: <span style={{ color: '#FFFFFF', fontWeight: '600' }}>{game.target_date}</span>
+            <p style={{ fontSize: '12px', fontWeight: '500', color: '#BF3604' }}>
+              Finish by: <span style={{ color: '#8C1C03', fontWeight: '600' }}>{game.target_date}</span>
             </p>
           )}
         </div>
 
         {game.notes && (
           <p style={{
-            fontSize: '12px',
-            fontWeight: '500',
-            color: '#8AA6A3',
-            fontStyle: 'italic',
-            borderTop: '1px solid rgba(18,115,105,0.3)',
-            paddingTop: '8px',
-            lineHeight: '1.6',
+            fontSize: '12px', fontWeight: '500', color: '#BF3604',
+            fontStyle: 'italic', borderTop: '1px solid rgba(140,28,3,0.2)',
+            paddingTop: '8px', lineHeight: '1.6',
           }}>
             {game.notes}
           </p>
@@ -234,18 +187,12 @@ function GameCard({ game, onEdit, onDelete }) {
         <div
           onClick={() => setExpanded(!expanded)}
           style={{
-            fontSize: '10px',
-            fontWeight: '600',
-            letterSpacing: '2px',
-            textTransform: 'uppercase',
-            color: '#8AA6A3',
-            textAlign: 'center',
-            paddingTop: '4px',
-            cursor: 'pointer',
-            transition: 'color 0.2s',
+            fontSize: '10px', fontWeight: '600', letterSpacing: '2px',
+            textTransform: 'uppercase', color: '#BF3604',
+            textAlign: 'center', paddingTop: '4px', cursor: 'pointer', transition: 'color 0.2s',
           }}
-          onMouseEnter={e => e.target.style.color = '#FFFFFF'}
-          onMouseLeave={e => e.target.style.color = '#8AA6A3'}
+          onMouseEnter={e => e.target.style.color = '#8C1C03'}
+          onMouseLeave={e => e.target.style.color = '#BF3604'}
         >
           {expanded ? '▼ COLLAPSE' : '▶ EXPAND DETAILS'}
         </div>
@@ -258,47 +205,31 @@ function GameCard({ game, onEdit, onDelete }) {
         transition: 'max-height 0.35s ease, opacity 0.3s ease',
       }}>
         <div style={{
-          padding: '0 16px 16px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '10px',
-          borderTop: '1px solid rgba(18,115,105,0.3)',
+          padding: '0 16px 16px', display: 'flex', flexDirection: 'column',
+          gap: '10px', borderTop: '1px solid rgba(140,28,3,0.2)',
         }}>
-
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '10px' }}>
             {game.metacritic && (
               <div style={{
-                background: '#10403B',
-                border: '1px solid rgba(18,115,105,0.3)',
-                borderRadius: '3px',
-                padding: '8px 10px',
+                background: '#F2EDDC',
+                border: '1px solid rgba(140,28,3,0.2)',
+                borderRadius: '3px', padding: '8px 10px',
               }}>
                 <p style={{
-                  fontSize: '9px',
-                  fontWeight: '700',
-                  letterSpacing: '2px',
-                  textTransform: 'uppercase',
-                  color: '#8AA6A3',
-                  marginBottom: '6px',
-                }}>
-                  Metacritic
-                </p>
+                  fontSize: '9px', fontWeight: '700', letterSpacing: '2px',
+                  textTransform: 'uppercase', color: '#BF3604', marginBottom: '6px',
+                }}>Metacritic</p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <div style={{
-                    width: '36px',
-                    height: '36px',
-                    background: game.metacritic >= 75 ? '#127369' : '#8a7a12',
-                    borderRadius: '3px',
-                    display: 'flex',
-                    alignItems: 'center',
+                    width: '36px', height: '36px',
+                    background: game.metacritic >= 75 ? '#F28B50' : '#8C1C03',
+                    borderRadius: '3px', display: 'flex', alignItems: 'center',
                     justifyContent: 'center',
-                    fontFamily: 'Bebas Neue, sans-serif',
-                    fontSize: '18px',
-                    color: '#FFFFFF',
+                    fontFamily: 'Bebas Neue, sans-serif', fontSize: '18px', color: '#F2EDDC',
                   }}>
                     {game.metacritic}
                   </div>
-                  <span style={{ fontSize: '11px', fontWeight: '500', color: '#BFBFBF', lineHeight: '1.4' }}>
+                  <span style={{ fontSize: '11px', fontWeight: '500', color: '#8C1C03', lineHeight: '1.4' }}>
                     {game.metacritic >= 90 ? 'Universal Acclaim' : game.metacritic >= 75 ? 'Generally Favorable' : 'Mixed'}
                   </span>
                 </div>
@@ -307,22 +238,15 @@ function GameCard({ game, onEdit, onDelete }) {
 
             {game.playtime && (
               <div style={{
-                background: '#10403B',
-                border: '1px solid rgba(18,115,105,0.3)',
-                borderRadius: '3px',
-                padding: '8px 10px',
+                background: '#F2EDDC',
+                border: '1px solid rgba(140,28,3,0.2)',
+                borderRadius: '3px', padding: '8px 10px',
               }}>
                 <p style={{
-                  fontSize: '9px',
-                  fontWeight: '700',
-                  letterSpacing: '2px',
-                  textTransform: 'uppercase',
-                  color: '#8AA6A3',
-                  marginBottom: '6px',
-                }}>
-                  Avg Playtime
-                </p>
-                <p className="bebas" style={{ fontSize: '22px', color: '#FFFFFF', letterSpacing: '1px' }}>
+                  fontSize: '9px', fontWeight: '700', letterSpacing: '2px',
+                  textTransform: 'uppercase', color: '#BF3604', marginBottom: '6px',
+                }}>Avg Playtime</p>
+                <p className="bebas" style={{ fontSize: '22px', color: '#8C1C03', letterSpacing: '1px' }}>
                   {game.playtime} HRS
                 </p>
               </div>
@@ -331,22 +255,15 @@ function GameCard({ game, onEdit, onDelete }) {
 
           {game.description && (
             <div style={{
-              background: '#10403B',
-              border: '1px solid rgba(18,115,105,0.3)',
-              borderRadius: '3px',
-              padding: '8px 10px',
+              background: '#F2EDDC',
+              border: '1px solid rgba(140,28,3,0.2)',
+              borderRadius: '3px', padding: '8px 10px',
             }}>
               <p style={{
-                fontSize: '9px',
-                fontWeight: '700',
-                letterSpacing: '2px',
-                textTransform: 'uppercase',
-                color: '#8AA6A3',
-                marginBottom: '6px',
-              }}>
-                About
-              </p>
-              <p style={{ fontSize: '12px', fontWeight: '500', color: '#BFBFBF', lineHeight: '1.6' }}>
+                fontSize: '9px', fontWeight: '700', letterSpacing: '2px',
+                textTransform: 'uppercase', color: '#BF3604', marginBottom: '6px',
+              }}>About</p>
+              <p style={{ fontSize: '12px', fontWeight: '500', color: '#8C1C03', lineHeight: '1.6' }}>
                 {game.description}
               </p>
             </div>
@@ -354,33 +271,23 @@ function GameCard({ game, onEdit, onDelete }) {
 
           {game.genres && game.genres.length > 0 && (
             <div style={{
-              background: '#10403B',
-              border: '1px solid rgba(18,115,105,0.3)',
-              borderRadius: '3px',
-              padding: '8px 10px',
+              background: '#F2EDDC',
+              border: '1px solid rgba(140,28,3,0.2)',
+              borderRadius: '3px', padding: '8px 10px',
             }}>
               <p style={{
-                fontSize: '9px',
-                fontWeight: '700',
-                letterSpacing: '2px',
-                textTransform: 'uppercase',
-                color: '#8AA6A3',
-                marginBottom: '8px',
-              }}>
-                Genres
-              </p>
+                fontSize: '9px', fontWeight: '700', letterSpacing: '2px',
+                textTransform: 'uppercase', color: '#BF3604', marginBottom: '8px',
+              }}>Genres</p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
                 {game.genres.map((g, index) => (
                   <span key={index} style={{
-                    background: '#0d3530',
-                    border: '1px solid rgba(18,115,105,0.4)',
-                    color: '#BFBFBF',
-                    fontSize: '10px',
-                    fontWeight: '600',
-                    letterSpacing: '1px',
-                    textTransform: 'uppercase',
-                    padding: '3px 8px',
-                    borderRadius: '2px',
+                    background: '#F28B50',
+                    border: '1px solid #BF3604',
+                    color: '#8C1C03',
+                    fontSize: '10px', fontWeight: '700',
+                    letterSpacing: '1px', textTransform: 'uppercase',
+                    padding: '3px 8px', borderRadius: '2px',
                   }}>
                     {typeof g === 'object' ? g.name : g}
                   </span>
@@ -391,27 +298,19 @@ function GameCard({ game, onEdit, onDelete }) {
 
           {game.released && (
             <div style={{
-              background: '#10403B',
-              border: '1px solid rgba(18,115,105,0.3)',
-              borderRadius: '3px',
-              padding: '8px 10px',
+              background: '#F2EDDC',
+              border: '1px solid rgba(140,28,3,0.2)',
+              borderRadius: '3px', padding: '8px 10px',
             }}>
               <p style={{
-                fontSize: '9px',
-                fontWeight: '700',
-                letterSpacing: '2px',
-                textTransform: 'uppercase',
-                color: '#8AA6A3',
-                marginBottom: '4px',
-              }}>
-                Released
-              </p>
-              <p style={{ fontSize: '12px', fontWeight: '500', color: '#BFBFBF' }}>
+                fontSize: '9px', fontWeight: '700', letterSpacing: '2px',
+                textTransform: 'uppercase', color: '#BF3604', marginBottom: '4px',
+              }}>Released</p>
+              <p style={{ fontSize: '12px', fontWeight: '500', color: '#8C1C03' }}>
                 {game.released} {game.developer && `· ${game.developer}`}
               </p>
             </div>
           )}
-
         </div>
       </div>
     </div>

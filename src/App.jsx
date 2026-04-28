@@ -8,11 +8,11 @@ import AddGameModal from './components/AddGameModal'
 const TABS = ['All', 'Playing', 'Completed', 'Backlog', 'Dropped']
 
 const TAB_COLORS = {
-  All: '#127369',
-  Playing: '#127369',
-  Completed: '#127369',
-  Backlog: '#4C5958',
-  Dropped: '#A62E2E',
+  All: '#F2CB57',
+  Playing: '#F28B50',
+  Completed: '#8C1C03',
+  Backlog: '#BF3604',
+  Dropped: '#8C1C03',
 }
 
 export default function App() {
@@ -23,9 +23,7 @@ export default function App() {
   const [loading, setLoading] = useState(true)
   const [view, setView] = useState('grid')
 
-  useEffect(() => {
-    fetchGames()
-  }, [])
+  useEffect(() => { fetchGames() }, [])
 
   const fetchGames = async () => {
     setLoading(true)
@@ -33,11 +31,8 @@ export default function App() {
       .from('games')
       .select('*')
       .order('created_at', { ascending: false })
-    if (error) {
-      console.error('Error fetching games:', error)
-    } else {
-      setGames(data)
-    }
+    if (error) console.error('Error fetching games:', error)
+    else setGames(data)
     setLoading(false)
   }
 
@@ -69,11 +64,8 @@ export default function App() {
         notes: newGame.notes,
       }])
       .select()
-    if (error) {
-      console.error('Error adding game:', error)
-    } else {
-      setGames([data[0], ...games])
-    }
+    if (error) console.error('Error adding game:', error)
+    else setGames([data[0], ...games])
   }
 
   const handleEdit = (game) => setEditingGame(game)
@@ -91,30 +83,23 @@ export default function App() {
         notes: updatedGame.notes,
       })
       .eq('id', updatedGame.id)
-    if (error) {
-      console.error('Error updating game:', error)
-    } else {
+    if (error) console.error('Error updating game:', error)
+    else {
       setGames(games.map(g => g.id === updatedGame.id ? { ...g, ...updatedGame } : g))
       setEditingGame(null)
     }
   }
 
   const handleDelete = async (id) => {
-    const { error } = await supabase
-      .from('games')
-      .delete()
-      .eq('id', id)
-    if (error) {
-      console.error('Error deleting game:', error)
-    } else {
-      setGames(games.filter(g => g.id !== id))
-    }
+    const { error } = await supabase.from('games').delete().eq('id', id)
+    if (error) console.error('Error deleting game:', error)
+    else setGames(games.filter(g => g.id !== id))
   }
 
   const viewBtnStyle = (active) => ({
-    background: active ? '#127369' : 'none',
-    border: '1px solid #127369',
-    color: active ? '#FFFFFF' : '#4C5958',
+    background: active ? '#F2CB57' : 'none',
+    border: `1px solid #F2CB57`,
+    color: active ? '#8C1C03' : '#F2CB57',
     width: '32px',
     height: '32px',
     borderRadius: '3px',
@@ -127,11 +112,12 @@ export default function App() {
   })
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#10403B' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#BF3604' }}>
       <div className="scanline" />
 
       <div style={{
-        borderBottom: '2px solid #127369',
+        background: '#8C1C03',
+        borderBottom: '3px solid #F2CB57',
         padding: '28px 32px 20px',
         display: 'flex',
         alignItems: 'flex-end',
@@ -142,7 +128,7 @@ export default function App() {
             fontSize: '11px',
             fontWeight: '600',
             letterSpacing: '4px',
-            color: '#8AA6A3',
+            color: '#F2CB57',
             textTransform: 'uppercase',
           }}>
             — personal collection —
@@ -151,14 +137,14 @@ export default function App() {
             fontSize: '56px',
             letterSpacing: '3px',
             lineHeight: '1',
-            color: '#FFFFFF',
+            color: '#F2EDDC',
           }}>
-            GAME <span style={{ color: '#127369' }}>TRACKER</span>
+            GAME <span style={{ color: '#F2CB57' }}>TRACKER</span>
           </h1>
           <span style={{
             fontSize: '11px',
             fontWeight: '600',
-            color: '#8AA6A3',
+            color: '#F28B50',
             letterSpacing: '2px',
             marginTop: '2px',
           }}>
@@ -169,13 +155,13 @@ export default function App() {
         <button
           onClick={() => setShowAddModal(true)}
           style={{
-            background: '#127369',
-            color: '#FFFFFF',
+            background: '#F2CB57',
+            color: '#8C1C03',
             border: 'none',
             padding: '10px 24px',
             fontFamily: 'Barlow, sans-serif',
             fontSize: '12px',
-            fontWeight: '600',
+            fontWeight: '800',
             letterSpacing: '2px',
             textTransform: 'uppercase',
             cursor: 'pointer',
@@ -183,13 +169,11 @@ export default function App() {
             transition: 'all 0.2s',
           }}
           onMouseEnter={e => {
-            e.currentTarget.style.background = '#8AA6A3'
-            e.currentTarget.style.color = '#10403B'
+            e.currentTarget.style.background = '#F2EDDC'
             e.currentTarget.style.transform = 'translateY(-1px)'
           }}
           onMouseLeave={e => {
-            e.currentTarget.style.background = '#127369'
-            e.currentTarget.style.color = '#FFFFFF'
+            e.currentTarget.style.background = '#F2CB57'
             e.currentTarget.style.transform = 'translateY(0)'
           }}
         >
@@ -198,12 +182,12 @@ export default function App() {
       </div>
 
       <div style={{
-        background: '#0d3530',
+        background: '#1a0800',
         padding: '0 32px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        borderBottom: '1px solid #127369',
+        borderBottom: '2px solid #8C1C03',
       }}>
         <div style={{ display: 'flex' }}>
           {TABS.map(tab => (
@@ -216,10 +200,12 @@ export default function App() {
                 fontWeight: '600',
                 letterSpacing: '2px',
                 textTransform: 'uppercase',
-                color: activeTab === tab ? '#FFFFFF' : '#4C5958',
+                color: activeTab === tab ? '#F2CB57' : '#BF3604',
                 background: 'none',
                 border: 'none',
-                borderBottom: activeTab === tab ? '3px solid #127369' : '3px solid transparent',
+                borderBottom: activeTab === tab
+                  ? '3px solid #F2CB57'
+                  : '3px solid transparent',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -229,16 +215,16 @@ export default function App() {
                 fontFamily: 'Barlow, sans-serif',
               }}
               onMouseEnter={e => {
-                if (activeTab !== tab) e.currentTarget.style.color = '#8AA6A3'
+                if (activeTab !== tab) e.currentTarget.style.color = '#F28B50'
               }}
               onMouseLeave={e => {
-                if (activeTab !== tab) e.currentTarget.style.color = '#4C5958'
+                if (activeTab !== tab) e.currentTarget.style.color = '#BF3604'
               }}
             >
               {tab}
               <span style={{
-                background: activeTab === tab ? TAB_COLORS[tab] : '#A62E2E',
-                color: '#FFFFFF',
+                background: activeTab === tab ? TAB_COLORS[tab] : '#8C1C03',
+                color: '#F2EDDC',
                 fontSize: '10px',
                 fontWeight: '700',
                 padding: '2px 7px',
@@ -252,79 +238,31 @@ export default function App() {
         </div>
 
         <div style={{ display: 'flex', gap: '6px' }}>
-          <button
-            onClick={() => setView('grid')}
-            style={viewBtnStyle(view === 'grid')}
-            title="Grid view"
-          >
-            ⊞
-          </button>
-          <button
-            onClick={() => setView('list')}
-            style={viewBtnStyle(view === 'list')}
-            title="List view"
-          >
-            ☰
-          </button>
+          <button onClick={() => setView('grid')} style={viewBtnStyle(view === 'grid')} title="Grid view">⊞</button>
+          <button onClick={() => setView('list')} style={viewBtnStyle(view === 'list')} title="List view">☰</button>
         </div>
       </div>
 
       <div style={{ padding: '28px 32px' }}>
         {loading ? (
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginTop: '100px',
-          }}>
-            <p className="bebas" style={{
-              color: '#127369',
-              fontSize: '32px',
-              letterSpacing: '2px',
-            }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '100px' }}>
+            <p className="bebas" style={{ color: '#F2EDDC', fontSize: '32px', letterSpacing: '2px' }}>
               LOADING...
             </p>
           </div>
         ) : filteredGames.length === 0 ? (
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginTop: '100px',
-            gap: '12px',
-          }}>
-            <p className="bebas" style={{
-              color: '#4C5958',
-              fontSize: '32px',
-              letterSpacing: '2px',
-            }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginTop: '100px', gap: '12px' }}>
+            <p className="bebas" style={{ color: '#F2EDDC', fontSize: '32px', letterSpacing: '2px' }}>
               {games.length === 0 ? 'NO GAMES YET' : `NO GAMES IN ${activeTab.toUpperCase()}`}
             </p>
-            <p style={{
-              color: '#4C5958',
-              fontSize: '12px',
-              fontWeight: '500',
-              letterSpacing: '1px',
-            }}>
+            <p style={{ color: '#F2EDDC', fontSize: '12px', fontWeight: '500', letterSpacing: '1px' }}>
               {games.length === 0 ? 'CLICK + ADD GAME TO GET STARTED' : 'ADD A GAME OR SWITCH TABS'}
             </p>
           </div>
         ) : view === 'grid' ? (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '20px',
-          }}
-            className="game-grid"
-          >
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }} className="game-grid">
             {filteredGames.map(game => (
-              <GameCard
-                key={game.id}
-                game={game}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-              />
+              <GameCard key={game.id} game={game} onEdit={handleEdit} onDelete={handleDelete} />
             ))}
           </div>
         ) : (
@@ -338,8 +276,8 @@ export default function App() {
               fontWeight: '700',
               letterSpacing: '2px',
               textTransform: 'uppercase',
-              color: '#127369',
-              borderBottom: '1px solid rgba(18,115,105,0.3)',
+              color: '#F2CB57',
+              borderBottom: '1px solid rgba(242,203,87,0.3)',
               marginBottom: '4px',
             }}>
               <div></div>
@@ -350,30 +288,17 @@ export default function App() {
               <div></div>
             </div>
             {filteredGames.map(game => (
-              <GameListRow
-                key={game.id}
-                game={game}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-              />
+              <GameListRow key={game.id} game={game} onEdit={handleEdit} onDelete={handleDelete} />
             ))}
           </div>
         )}
       </div>
 
       {showAddModal && (
-        <AddGameModal
-          onAdd={handleAdd}
-          onClose={() => setShowAddModal(false)}
-        />
+        <AddGameModal onAdd={handleAdd} onClose={() => setShowAddModal(false)} />
       )}
-
       {editingGame && (
-        <EditGameModal
-          game={editingGame}
-          onSave={handleSave}
-          onClose={() => setEditingGame(null)}
-        />
+        <EditGameModal game={editingGame} onSave={handleSave} onClose={() => setEditingGame(null)} />
       )}
     </div>
   )

@@ -1,10 +1,10 @@
 import { useState } from 'react'
 
 const STATUS_COLORS = {
-  Playing: { bg: '#127369', color: '#8AA6A3' },
-  Completed: { bg: 'transparent', color: '#127369', border: '1px solid #127369' },
-  Backlog: { bg: '#4C5958', color: '#F0EDE6' },
-  Dropped: { bg: 'transparent', color: '#A62E2E', border: '1px solid #A62E2E' },
+  Playing: { bg: '#F28B50', color: '#8C1C03' },
+  Completed: { bg: 'transparent', color: '#8C1C03', border: '1px solid #8C1C03' },
+  Backlog: { bg: '#8C1C03', color: '#F2EDDC' },
+  Dropped: { bg: 'transparent', color: '#BF3604', border: '1px solid #BF3604' },
 }
 
 function GameListRow({ game, onEdit, onDelete }) {
@@ -22,8 +22,8 @@ function GameListRow({ game, onEdit, onDelete }) {
         gridTemplateColumns: '60px 1fr 120px 100px 130px 40px',
         gap: '12px',
         padding: '10px 14px',
-        background: hovered ? 'rgba(18,115,105,0.1)' : '#0d3530',
-        border: hovered ? '1px solid #8AA6A3' : '1px solid rgba(18,115,105,0.2)',
+        background: hovered ? '#F2CB57' : '#F2EDDC',
+        border: hovered ? '1px solid #8C1C03' : '1px solid rgba(140,28,3,0.2)',
         borderRadius: '3px',
         alignItems: 'center',
         cursor: 'pointer',
@@ -32,76 +32,48 @@ function GameListRow({ game, onEdit, onDelete }) {
       }}
     >
       <div style={{
-        width: '52px',
-        height: '52px',
-        borderRadius: '2px',
-        overflow: 'hidden',
-        border: '1px solid rgba(18,115,105,0.3)',
-        flexShrink: 0,
+        width: '52px', height: '52px', borderRadius: '2px',
+        overflow: 'hidden', border: '1px solid #BF3604', flexShrink: 0,
       }}>
         {game.cover ? (
-          <img
-            src={game.cover}
-            alt={game.title}
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          />
+          <img src={game.cover} alt={game.title}
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         ) : (
           <div style={{
-            width: '100%',
-            height: '100%',
-            background: '#127369',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '20px',
-            color: '#0d3530',
-          }}>
-            ◆
-          </div>
+            width: '100%', height: '100%', background: '#8C1C03',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '20px', color: '#BF3604',
+          }}>◆</div>
         )}
       </div>
 
       <div>
         <p style={{
-          fontFamily: 'Bebas Neue, sans-serif',
-          fontSize: '18px',
-          color: hovered ? '#8AA6A3' : '#FFFFFF',
-          letterSpacing: '1px',
-          transition: 'color 0.2s',
+          fontFamily: 'Bebas Neue, sans-serif', fontSize: '18px',
+          color: hovered ? '#BF3604' : '#8C1C03',
+          letterSpacing: '1px', transition: 'color 0.2s',
         }}>
           {game.title}
         </p>
-        <p style={{
-          fontSize: '11px',
-          fontWeight: '500',
-          color: '#4C5958',
-          marginTop: '2px',
-        }}>
+        <p style={{ fontSize: '11px', fontWeight: '500', color: '#BF3604', marginTop: '2px' }}>
           {game.genre} {game.developer ? `· ${game.developer}` : ''}
         </p>
       </div>
 
-      <p style={{ fontSize: '12px', fontWeight: '600', color: '#FFFFFF' }}>
+      <p style={{ fontSize: '12px', fontWeight: '600', color: '#8C1C03' }}>
         {game.platform}
       </p>
 
       <span style={{
-        fontSize: '8px',
-        fontWeight: '700',
-        letterSpacing: '1.5px',
-        textTransform: 'uppercase',
-        padding: '3px 8px',
-        borderRadius: '2px',
-        whiteSpace: 'nowrap',
-        background: status.bg,
-        color: status.color,
-        border: status.border || 'none',
-        display: 'inline-block',
+        fontSize: '8px', fontWeight: '700', letterSpacing: '1.5px',
+        textTransform: 'uppercase', padding: '3px 8px', borderRadius: '2px',
+        whiteSpace: 'nowrap', background: status.bg, color: status.color,
+        border: status.border || 'none', display: 'inline-block',
       }}>
         {game.status}
       </span>
 
-      <p style={{ fontSize: '12px', fontWeight: '500', color: '#8AA6A3' }}>
+      <p style={{ fontSize: '12px', fontWeight: '500', color: '#BF3604' }}>
         {game.target_date || '—'}
       </p>
 
@@ -109,23 +81,21 @@ function GameListRow({ game, onEdit, onDelete }) {
         <button
           onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen) }}
           style={{
-            background: 'none',
-            border: '1px solid #127369',
-            color: '#8AA6A3',
-            borderRadius: '3px',
-            padding: '2px 8px',
-            fontSize: '14px',
-            fontWeight: '700',
-            cursor: 'pointer',
-            transition: 'all 0.2s',
+            background: menuOpen ? '#8C1C03' : 'none',
+            border: '1px solid #8C1C03',
+            color: menuOpen ? '#F2EDDC' : '#8C1C03',
+            borderRadius: '3px', padding: '2px 8px',
+            fontSize: '14px', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s',
           }}
           onMouseEnter={e => {
-            e.currentTarget.style.background = '#127369'
-            e.currentTarget.style.color = '#FFFFFF'
+            e.currentTarget.style.background = '#8C1C03'
+            e.currentTarget.style.color = '#F2EDDC'
           }}
           onMouseLeave={e => {
-            e.currentTarget.style.background = 'none'
-            e.currentTarget.style.color = '#8AA6A3'
+            if (!menuOpen) {
+              e.currentTarget.style.background = 'none'
+              e.currentTarget.style.color = '#8C1C03'
+            }
           }}
         >
           ···
@@ -133,75 +103,35 @@ function GameListRow({ game, onEdit, onDelete }) {
 
         {menuOpen && (
           <div style={{
-            position: 'absolute',
-            top: '32px',
-            right: '0',
-            background: '#0d3530',
-            border: '1px solid #127369',
-            borderRadius: '3px',
-            zIndex: 10,
-            overflow: 'hidden',
-            minWidth: '130px',
+            position: 'absolute', top: '32px', right: '0',
+            background: '#F2EDDC', border: '1px solid #8C1C03',
+            borderRadius: '3px', zIndex: 10, overflow: 'hidden', minWidth: '130px',
           }}>
             <button
               onClick={(e) => { e.stopPropagation(); onEdit(game); setMenuOpen(false) }}
               style={{
-                display: 'block',
-                width: '100%',
-                textAlign: 'left',
-                padding: '10px 14px',
-                fontSize: '11px',
-                fontWeight: '600',
-                letterSpacing: '1.5px',
-                textTransform: 'uppercase',
-                color: '#8AA6A3',
-                background: 'none',
-                border: 'none',
-                borderBottom: '1px solid rgba(18,115,105,0.3)',
-                cursor: 'pointer',
-                fontFamily: 'Barlow, sans-serif',
-                transition: 'all 0.15s',
+                display: 'block', width: '100%', textAlign: 'left',
+                padding: '10px 14px', fontSize: '11px', fontWeight: '600',
+                letterSpacing: '1.5px', textTransform: 'uppercase',
+                color: '#8C1C03', background: 'none', border: 'none',
+                borderBottom: '1px solid rgba(140,28,3,0.2)',
+                cursor: 'pointer', fontFamily: 'Barlow, sans-serif', transition: 'all 0.15s',
               }}
-              onMouseEnter={e => {
-                e.target.style.background = '#127369'
-                e.target.style.color = '#F0EDE6'
-              }}
-              onMouseLeave={e => {
-                e.target.style.background = 'none'
-                e.target.style.color = '#8AA6A3'
-              }}
-            >
-              ✏ Edit
-            </button>
+              onMouseEnter={e => { e.target.style.background = '#8C1C03'; e.target.style.color = '#F2EDDC' }}
+              onMouseLeave={e => { e.target.style.background = 'none'; e.target.style.color = '#8C1C03' }}
+            >✏ Edit</button>
             <button
               onClick={(e) => { e.stopPropagation(); onDelete(game.id); setMenuOpen(false) }}
               style={{
-                display: 'block',
-                width: '100%',
-                textAlign: 'left',
-                padding: '10px 14px',
-                fontSize: '11px',
-                fontWeight: '600',
-                letterSpacing: '1.5px',
-                textTransform: 'uppercase',
-                color: '#A62E2E',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                fontFamily: 'Barlow, sans-serif',
-                transition: 'all 0.15s',
+                display: 'block', width: '100%', textAlign: 'left',
+                padding: '10px 14px', fontSize: '11px', fontWeight: '600',
+                letterSpacing: '1.5px', textTransform: 'uppercase',
+                color: '#BF3604', background: 'none', border: 'none',
+                cursor: 'pointer', fontFamily: 'Barlow, sans-serif', transition: 'all 0.15s',
               }}
-              onMouseEnter={e => {
-                e.target.style.background = 'rgba(166,46,46,0.15)'
-                e.target.style.color = '#ff6b6b'
-              }}
-              onMouseLeave={e => {
-                e.target.style.background = 'none'
-                e.target.style.color = '#A62E2E'
-              }}
-            >
-              ✕ Delete
-            </button>
+              onMouseEnter={e => { e.target.style.background = 'rgba(191,54,4,0.1)'; e.target.style.color = '#8C1C03' }}
+              onMouseLeave={e => { e.target.style.background = 'none'; e.target.style.color = '#BF3604' }}
+            >✕ Delete</button>
           </div>
         )}
       </div>

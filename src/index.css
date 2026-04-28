@@ -8,7 +8,7 @@
 
 body {
   font-family: 'Barlow', sans-serif;
-  background-color: #10403B;
+  background-color: #1a0800;
 }
 
 .bebas {
@@ -20,8 +20,8 @@ body {
     0deg,
     transparent,
     transparent 2px,
-    rgba(0, 0, 0, 0.03) 2px,
-    rgba(0, 0, 0, 0.03) 4px
+    rgba(0, 0, 0, 0.05) 2px,
+    rgba(0, 0, 0, 0.05) 4px
   );
   position: fixed;
   top: 0;
@@ -30,4 +30,20 @@ body {
   bottom: 0;
   pointer-events: none;
   z-index: 9999;
+}
+
+.game-grid {
+  grid-template-columns: repeat(3, 1fr) !important;
+}
+
+@media (max-width: 1024px) {
+  .game-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .game-grid {
+    grid-template-columns: repeat(1, 1fr) !important;
+  }
 }
