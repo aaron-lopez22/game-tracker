@@ -1,256 +1,91 @@
+// EditGameModal — edit status, dates, notes, custom cover for an existing game.
+
 import { useState } from 'react'
+import { theme, fonts, btn, STATUSES, statusColor } from '../lib/theme'
+import Cover from './Cover'
+import { Backdrop, modalStyle, closeBtnStyle, inputStyle, Label } from './AddGameModal'
 
-const STATUSES = ['Playing', 'Completed', 'Backlog', 'Dropped']
+export default function EditGameModal({ game, onSave, onClose }) {
+  const [status, setStatus] = useState(game.status || 'Backlog')
+  const [startDate, setStartDate] = useState(game.start_date || '')
+  const [targetDate, setTargetDate] = useState(game.target_date || '')
+  const [notes, setNotes] = useState(game.notes || '')
+  const [cover, setCover] = useState(game.cover || '')
 
-function EditGameModal({ game, onSave, onClose }) {
-  const [form, setForm] = useState({
-    title: game.title,
-    genre: game.genre,
-    status: game.status,
-    platform: game.platform,
-    startDate: game.startDate,
-    targetDate: game.targetDate,
-    notes: game.notes || '',
-  })
-
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value })
-  }
-
-  const handleSave = () => {
-    onSave({ ...game, ...form })
-    onClose()
-  }
-
-  const inputStyle = {
-    width: '100%',
-    background: '#0d3530',
-    border: '1px solid #127369',
-    borderRadius: '3px',
-    padding: '10px 14px',
-    color: '#F0EDE6',
-    fontSize: '12px',
-    fontFamily: 'Barlow, sans-serif',
-    letterSpacing: '0.5px',
-    outline: 'none',
-  }
-
-  const labelStyle = {
-    fontSize: '9px',
-    fontWeight: '700',
-    letterSpacing: '2px',
-    textTransform: 'uppercase',
-    color: '#127369',
-    marginBottom: '6px',
-    display: 'block',
-  }
-
-  const fieldStyle = {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '4px',
+  const commit = () => {
+    onSave?.({
+      ...game,
+      status,
+      start_date: startDate || null,
+      target_date: targetDate || null,
+      notes,
+      cover,
+    })
   }
 
   return (
-    <div style={{
-      position: 'fixed',
-      inset: '0',
-      background: 'rgba(0,0,0,0.75)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 50,
-    }}>
-      <div style={{
-        background: '#10403B',
-        border: '1px solid #127369',
-        borderRadius: '4px',
-        padding: '28px',
-        width: '100%',
-        maxWidth: '440px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '16px',
-      }}>
-
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+    <Backdrop onClose={onClose}>
+      <div style={modalStyle}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
           <div>
-            <p style={{ fontSize: '10px', fontWeight: '600', letterSpacing: '3px', color: '#4C5958', textTransform: 'uppercase', marginBottom: '4px' }}>
-              — editing —
-            </p>
-            <h2 style={{
-              fontFamily: 'Bebas Neue, sans-serif',
-              fontSize: '28px',
-              letterSpacing: '2px',
-              color: '#FFFFFF',
-            }}>
-              {game.title}
-            </h2>
+            <div style={{ fontSize: 11, color: theme.muted, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>✏️ Editing</div>
+            <h2 style={{ fontFamily: fonts.display, fontSize: 28, fontWeight: 800, letterSpacing: '-0.03em', marginTop: 4 }}>{game.title}</h2>
           </div>
-          <button
-            onClick={onClose}
-            style={{
-              background: 'none',
-              border: '1px solid #4C5958',
-              color: '#4C5958',
-              borderRadius: '3px',
-              width: '32px',
-              height: '32px',
-              cursor: 'pointer',
-              fontSize: '14px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all 0.2s',
-            }}
-            onMouseEnter={e => {
-              e.target.style.borderColor = '#A62E2E'
-              e.target.style.color = '#A62E2E'
-            }}
-            onMouseLeave={e => {
-              e.target.style.borderColor = '#4C5958'
-              e.target.style.color = '#4C5958'
-            }}
-          >
-            ✕
-          </button>
+          <button onClick={onClose} style={closeBtnStyle} aria-label="Close">✕</button>
         </div>
 
-        <div style={{ height: '1px', background: 'rgba(18,115,105,0.3)' }} />
-
-        <div style={fieldStyle}>
-          <label style={labelStyle}>Title</label>
-          <input name="title" value={form.title} onChange={handleChange} style={inputStyle} />
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-          <div style={fieldStyle}>
-            <label style={labelStyle}>Genre</label>
-            <input name="genre" value={form.genre} onChange={handleChange} style={inputStyle} />
-          </div>
-          <div style={fieldStyle}>
-            <label style={labelStyle}>Platform</label>
-            <input name="platform" value={form.platform} onChange={handleChange} style={inputStyle} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: 12, background: theme.surface, borderRadius: 12, boxShadow: theme.shadow }}>
+          <Cover src={cover} title={game.title} width={64} height={84} radius={10} />
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 12, color: theme.muted }}>{game.developer || 'Unknown developer'} · {String(game.released || '').slice(0, 4)}</div>
+            <div style={{ fontSize: 13, color: theme.ink, marginTop: 4 }}>
+              {game.platform || '—'} · {game.genre || 'Unknown'}
+            </div>
           </div>
         </div>
 
-        <div style={fieldStyle}>
-          <label style={labelStyle}>Status</label>
-          <select
-            name="status"
-            value={form.status}
-            onChange={handleChange}
-            style={{ ...inputStyle, cursor: 'pointer' }}
-          >
+        <div style={{ marginTop: 22 }}>
+          <Label>Status</Label>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {STATUSES.map(s => (
-              <option key={s} value={s} style={{ background: '#10403B' }}>{s}</option>
+              <button key={s} onClick={() => setStatus(s)} style={{
+                padding: '8px 14px', borderRadius: 10,
+                background: status === s ? statusColor(s) : theme.surface,
+                color: status === s ? '#fff' : theme.ink,
+                border: 'none', cursor: 'pointer', fontWeight: 600,
+                fontSize: 12, fontFamily: fonts.body,
+                boxShadow: status === s ? 'inset 0 -2px 0 rgba(0,0,0,0.18)' : theme.shadow,
+              }}>{s}</button>
             ))}
-          </select>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-          <div style={fieldStyle}>
-            <label style={labelStyle}>Date Started</label>
-            <input
-              type="date"
-              name="startDate"
-              value={form.startDate}
-              onChange={handleChange}
-              style={{ ...inputStyle, colorScheme: 'dark' }}
-            />
-          </div>
-          <div style={fieldStyle}>
-            <label style={labelStyle}>Target Finish</label>
-            <input
-              type="date"
-              name="targetDate"
-              value={form.targetDate}
-              onChange={handleChange}
-              style={{ ...inputStyle, colorScheme: 'dark' }}
-            />
           </div>
         </div>
 
-        <div style={fieldStyle}>
-          <label style={labelStyle}>Notes & Plans</label>
-          <textarea
-            name="notes"
-            value={form.notes}
-            onChange={handleChange}
-            rows={3}
-            placeholder="Write your plans, strategies, goals..."
-            style={{
-              ...inputStyle,
-              resize: 'none',
-              lineHeight: '1.6',
-            }}
-          />
+        <div style={{ marginTop: 18, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+          <div>
+            <Label>Started</Label>
+            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} style={inputStyle} />
+          </div>
+          <div>
+            <Label>Target finish</Label>
+            <input type="date" value={targetDate} onChange={(e) => setTargetDate(e.target.value)} style={inputStyle} />
+          </div>
         </div>
 
-        <div style={{ height: '1px', background: 'rgba(18,115,105,0.3)' }} />
-
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-          <button
-            onClick={onClose}
-            style={{
-              background: 'none',
-              border: '1px solid #4C5958',
-              color: '#4C5958',
-              padding: '10px 20px',
-              borderRadius: '3px',
-              fontSize: '11px',
-              fontWeight: '600',
-              letterSpacing: '2px',
-              textTransform: 'uppercase',
-              cursor: 'pointer',
-              fontFamily: 'Barlow, sans-serif',
-              transition: 'all 0.2s',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.borderColor = '#8AA6A3'
-              e.currentTarget.style.color = '#8AA6A3'
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.borderColor = '#4C5958'
-              e.currentTarget.style.color = '#4C5958'
-            }}
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            style={{
-              background: '#127369',
-              border: '1px solid #127369',
-              color: '#F0EDE6',
-              padding: '10px 20px',
-              borderRadius: '3px',
-              fontSize: '11px',
-              fontWeight: '600',
-              letterSpacing: '2px',
-              textTransform: 'uppercase',
-              cursor: 'pointer',
-              fontFamily: 'Barlow, sans-serif',
-              transition: 'all 0.2s',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.background = '#8AA6A3'
-              e.currentTarget.style.borderColor = '#8AA6A3'
-              e.currentTarget.style.color = '#10403B'
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.background = '#127369'
-              e.currentTarget.style.borderColor = '#127369'
-              e.currentTarget.style.color = '#F0EDE6'
-            }}
-          >
-            Save Changes
-          </button>
+        <div style={{ marginTop: 18 }}>
+          <Label>Custom cover URL</Label>
+          <input type="url" value={cover} onChange={(e) => setCover(e.target.value)} placeholder="https://…" style={inputStyle} />
         </div>
 
+        <div style={{ marginTop: 18 }}>
+          <Label>Notes</Label>
+          <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={4} style={{ ...inputStyle, resize: 'none' }} />
+        </div>
+
+        <div style={{ marginTop: 22, display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+          <button onClick={onClose} style={btn.ghost}>Cancel</button>
+          <button onClick={commit} style={btn.accent}>Save changes</button>
+        </div>
       </div>
-    </div>
+    </Backdrop>
   )
 }
-
-export default EditGameModal

@@ -1,320 +1,100 @@
+// GameCard — the Hearth-styled card. Replaces the burgundy version.
+// Click → opens edit modal. Status dropdown on the card for fast status changes.
+
 import { useState } from 'react'
+import { theme, fonts, statusColor, STATUSES } from '../lib/theme'
+import Cover from './Cover'
 
-const STATUS_COLORS = {
-  Playing: { bg: '#F28B50', color: '#8C1C03' },
-  Completed: { bg: 'transparent', color: '#8C1C03', border: '1px solid #8C1C03' },
-  Backlog: { bg: '#8C1C03', color: '#F2EDDC' },
-  Dropped: { bg: 'transparent', color: '#BF3604', border: '1px solid #BF3604' },
-}
-
-function GameCard({ game, onEdit, onDelete }) {
+export default function GameCard({ game, onEdit, onDelete, onStatusChange }) {
   const [menuOpen, setMenuOpen] = useState(false)
-  const [expanded, setExpanded] = useState(false)
-  const [hovered, setHovered] = useState(false)
-
-  const status = STATUS_COLORS[game.status] || STATUS_COLORS.Backlog
+  const [hover, setHover] = useState(false)
 
   return (
     <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => { setHovered(false); setMenuOpen(false) }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => { setHover(false); setMenuOpen(false) }}
       style={{
-        background: '#F2EDDC',
-        border: hovered ? '1px solid #8C1C03' : '1px solid #BF3604',
-        borderRadius: '4px',
-        overflow: 'hidden',
-        position: 'relative',
-        transform: hovered ? 'translateY(-3px)' : 'translateY(0)',
-        boxShadow: hovered ? '0 8px 24px rgba(140,28,3,0.3)' : 'none',
-        transition: 'all 0.2s ease',
-        cursor: 'pointer',
+        background: theme.surface, borderRadius: 14, overflow: 'hidden',
+        boxShadow: hover ? theme.shadowRaised : theme.shadow,
+        transform: hover ? 'translateY(-2px)' : 'translateY(0)',
+        transition: 'transform 0.18s ease, box-shadow 0.18s ease',
+        position: 'relative', cursor: 'pointer',
       }}
+      onClick={() => onEdit?.(game)}
     >
-      {game.cover ? (
-        <img
-          src={game.cover}
-          alt={game.title}
+      <div style={{ position: 'relative' }}>
+        <Cover src={game.cover} title={game.title} width="100%" height={170} radius={0} />
+        <div style={{
+          position: 'absolute', top: 8, left: 8,
+          padding: '3px 9px', borderRadius: 999,
+          background: statusColor(game.status), color: '#fff',
+          fontSize: 9, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase',
+        }}>
+          {game.status}
+        </div>
+
+        <button
+          onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen) }}
           style={{
-            width: '100%',
-            height: expanded ? '160px' : '140px',
-            objectFit: 'cover',
-            display: 'block',
-            transition: 'height 0.3s ease',
+            position: 'absolute', top: 8, right: 8,
+            width: 28, height: 28, borderRadius: 8, border: 'none',
+            background: 'rgba(255,255,255,0.92)', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: theme.ink, fontSize: 14, fontWeight: 700,
+            backdropFilter: 'blur(6px)',
           }}
-        />
-      ) : (
-        <div style={{
-          width: '100%',
-          height: expanded ? '160px' : '140px',
-          background: '#8C1C03',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '32px',
-          color: '#BF3604',
-          transition: 'height 0.3s ease',
-        }}>
-          ◆
-        </div>
-      )}
+          aria-label="More options"
+        >⋯</button>
 
-      <button
-        onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen) }}
-        style={{
-          position: 'absolute',
-          top: '8px',
-          right: '8px',
-          background: menuOpen ? '#8C1C03' : 'rgba(242,237,220,0.9)',
-          color: menuOpen ? '#F2EDDC' : '#8C1C03',
-          border: '1px solid #8C1C03',
-          borderRadius: '3px',
-          padding: '2px 8px',
-          fontSize: '14px',
-          fontWeight: '700',
-          letterSpacing: '1px',
-          cursor: 'pointer',
-          transition: 'all 0.2s',
-          zIndex: 2,
-        }}
-        onMouseEnter={e => {
-          e.target.style.background = '#8C1C03'
-          e.target.style.color = '#F2EDDC'
-        }}
-        onMouseLeave={e => {
-          if (!menuOpen) {
-            e.target.style.background = 'rgba(242,237,220,0.9)'
-            e.target.style.color = '#8C1C03'
-          }
-        }}
-      >
-        ···
-      </button>
-
-      {menuOpen && (
-        <div style={{
-          position: 'absolute',
-          top: '36px',
-          right: '8px',
-          background: '#F2EDDC',
-          border: '1px solid #8C1C03',
-          borderRadius: '3px',
-          zIndex: 10,
-          overflow: 'hidden',
-          minWidth: '130px',
-        }}>
-          <button
-            onClick={(e) => { e.stopPropagation(); onEdit(game); setMenuOpen(false) }}
+        {menuOpen && (
+          <div
+            onClick={(e) => e.stopPropagation()}
             style={{
-              display: 'block', width: '100%', textAlign: 'left',
-              padding: '10px 14px', fontSize: '11px', fontWeight: '600',
-              letterSpacing: '1.5px', textTransform: 'uppercase',
-              color: '#8C1C03', background: 'none', border: 'none',
-              borderBottom: '1px solid rgba(140,28,3,0.2)',
-              cursor: 'pointer', fontFamily: 'Barlow, sans-serif', transition: 'all 0.15s',
-            }}
-            onMouseEnter={e => { e.target.style.background = '#8C1C03'; e.target.style.color = '#F2EDDC' }}
-            onMouseLeave={e => { e.target.style.background = 'none'; e.target.style.color = '#8C1C03' }}
-          >
-            ✏ Edit
-          </button>
-          <button
-            onClick={(e) => { e.stopPropagation(); onDelete(game.id); setMenuOpen(false) }}
-            style={{
-              display: 'block', width: '100%', textAlign: 'left',
-              padding: '10px 14px', fontSize: '11px', fontWeight: '600',
-              letterSpacing: '1.5px', textTransform: 'uppercase',
-              color: '#BF3604', background: 'none', border: 'none',
-              cursor: 'pointer', fontFamily: 'Barlow, sans-serif', transition: 'all 0.15s',
-            }}
-            onMouseEnter={e => { e.target.style.background = 'rgba(191,54,4,0.1)'; e.target.style.color = '#8C1C03' }}
-            onMouseLeave={e => { e.target.style.background = 'none'; e.target.style.color = '#BF3604' }}
-          >
-            ✕ Delete
-          </button>
-        </div>
-      )}
-
-      <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px' }}>
-          <h2
-            className="bebas"
-            onClick={() => setExpanded(!expanded)}
-            style={{
-              fontSize: '22px', letterSpacing: '1px', lineHeight: '1.1',
-              color: hovered ? '#BF3604' : '#8C1C03',
-              cursor: 'pointer', transition: 'color 0.2s',
+              position: 'absolute', top: 42, right: 8, minWidth: 160,
+              background: theme.surface, borderRadius: 12, padding: 6,
+              boxShadow: '0 8px 28px rgba(0,0,0,0.18), 0 0 0 1px ' + theme.rule,
+              zIndex: 10,
             }}
           >
-            {game.title}
-          </h2>
-          <span style={{
-            fontSize: '9px', fontWeight: '700', letterSpacing: '1.5px',
-            textTransform: 'uppercase', padding: '3px 9px', borderRadius: '2px',
-            whiteSpace: 'nowrap', flexShrink: 0,
-            background: status.bg, color: status.color, border: status.border || 'none',
-          }}>
-            {game.status}
-          </span>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <p style={{ fontSize: '12px', fontWeight: '500', color: '#BF3604', letterSpacing: '0.5px' }}>
-            ◼ <span style={{ color: '#8C1C03', fontWeight: '600' }}>{game.platform}</span>
-            &nbsp;·&nbsp;{game.genre}
-          </p>
-          {game.start_date && (
-            <p style={{ fontSize: '12px', fontWeight: '500', color: '#BF3604' }}>
-              Started: <span style={{ color: '#8C1C03', fontWeight: '600' }}>{game.start_date}</span>
-            </p>
-          )}
-          {game.target_date && (
-            <p style={{ fontSize: '12px', fontWeight: '500', color: '#BF3604' }}>
-              Finish by: <span style={{ color: '#8C1C03', fontWeight: '600' }}>{game.target_date}</span>
-            </p>
-          )}
-        </div>
-
-        {game.notes && (
-          <p style={{
-            fontSize: '12px', fontWeight: '500', color: '#BF3604',
-            fontStyle: 'italic', borderTop: '1px solid rgba(140,28,3,0.2)',
-            paddingTop: '8px', lineHeight: '1.6',
-          }}>
-            {game.notes}
-          </p>
+            <div style={{ fontSize: 10, fontWeight: 600, color: theme.muted, padding: '6px 10px 4px', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Set status</div>
+            {STATUSES.map(s => (
+              <button key={s} onClick={() => { onStatusChange?.(game, s); setMenuOpen(false) }}
+                style={menuItemStyle(game.status === s)}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: statusColor(s), display: 'inline-block', marginRight: 8 }} />
+                {s}
+              </button>
+            ))}
+            <div style={{ height: 1, background: theme.rule, margin: '6px 4px' }} />
+            <button onClick={() => { onEdit?.(game); setMenuOpen(false) }} style={menuItemStyle(false)}>Edit details…</button>
+            <button onClick={() => { if (confirm(`Delete "${game.title}"?`)) onDelete?.(game.id); setMenuOpen(false) }}
+              style={{ ...menuItemStyle(false), color: '#c0392b' }}>Delete</button>
+          </div>
         )}
-
-        <div
-          onClick={() => setExpanded(!expanded)}
-          style={{
-            fontSize: '10px', fontWeight: '600', letterSpacing: '2px',
-            textTransform: 'uppercase', color: '#BF3604',
-            textAlign: 'center', paddingTop: '4px', cursor: 'pointer', transition: 'color 0.2s',
-          }}
-          onMouseEnter={e => e.target.style.color = '#8C1C03'}
-          onMouseLeave={e => e.target.style.color = '#BF3604'}
-        >
-          {expanded ? '▼ COLLAPSE' : '▶ EXPAND DETAILS'}
-        </div>
       </div>
 
-      <div style={{
-        maxHeight: expanded ? '500px' : '0',
-        overflow: 'hidden',
-        opacity: expanded ? 1 : 0,
-        transition: 'max-height 0.35s ease, opacity 0.3s ease',
-      }}>
+      <div style={{ padding: '10px 12px' }}>
         <div style={{
-          padding: '0 16px 16px', display: 'flex', flexDirection: 'column',
-          gap: '10px', borderTop: '1px solid rgba(140,28,3,0.2)',
+          fontFamily: fonts.display, fontSize: 14, fontWeight: 700,
+          color: theme.ink, lineHeight: 1.2,
+          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+        }}>{game.title}</div>
+        <div style={{
+          fontSize: 11, color: theme.muted, marginTop: 4,
+          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
         }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '10px' }}>
-            {game.metacritic && (
-              <div style={{
-                background: '#F2EDDC',
-                border: '1px solid rgba(140,28,3,0.2)',
-                borderRadius: '3px', padding: '8px 10px',
-              }}>
-                <p style={{
-                  fontSize: '9px', fontWeight: '700', letterSpacing: '2px',
-                  textTransform: 'uppercase', color: '#BF3604', marginBottom: '6px',
-                }}>Metacritic</p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <div style={{
-                    width: '36px', height: '36px',
-                    background: game.metacritic >= 75 ? '#F28B50' : '#8C1C03',
-                    borderRadius: '3px', display: 'flex', alignItems: 'center',
-                    justifyContent: 'center',
-                    fontFamily: 'Bebas Neue, sans-serif', fontSize: '18px', color: '#F2EDDC',
-                  }}>
-                    {game.metacritic}
-                  </div>
-                  <span style={{ fontSize: '11px', fontWeight: '500', color: '#8C1C03', lineHeight: '1.4' }}>
-                    {game.metacritic >= 90 ? 'Universal Acclaim' : game.metacritic >= 75 ? 'Generally Favorable' : 'Mixed'}
-                  </span>
-                </div>
-              </div>
-            )}
-
-            {game.playtime && (
-              <div style={{
-                background: '#F2EDDC',
-                border: '1px solid rgba(140,28,3,0.2)',
-                borderRadius: '3px', padding: '8px 10px',
-              }}>
-                <p style={{
-                  fontSize: '9px', fontWeight: '700', letterSpacing: '2px',
-                  textTransform: 'uppercase', color: '#BF3604', marginBottom: '6px',
-                }}>Avg Playtime</p>
-                <p className="bebas" style={{ fontSize: '22px', color: '#8C1C03', letterSpacing: '1px' }}>
-                  {game.playtime} HRS
-                </p>
-              </div>
-            )}
-          </div>
-
-          {game.description && (
-            <div style={{
-              background: '#F2EDDC',
-              border: '1px solid rgba(140,28,3,0.2)',
-              borderRadius: '3px', padding: '8px 10px',
-            }}>
-              <p style={{
-                fontSize: '9px', fontWeight: '700', letterSpacing: '2px',
-                textTransform: 'uppercase', color: '#BF3604', marginBottom: '6px',
-              }}>About</p>
-              <p style={{ fontSize: '12px', fontWeight: '500', color: '#8C1C03', lineHeight: '1.6' }}>
-                {game.description}
-              </p>
-            </div>
-          )}
-
-          {game.genres && game.genres.length > 0 && (
-            <div style={{
-              background: '#F2EDDC',
-              border: '1px solid rgba(140,28,3,0.2)',
-              borderRadius: '3px', padding: '8px 10px',
-            }}>
-              <p style={{
-                fontSize: '9px', fontWeight: '700', letterSpacing: '2px',
-                textTransform: 'uppercase', color: '#BF3604', marginBottom: '8px',
-              }}>Genres</p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                {game.genres.map((g, index) => (
-                  <span key={index} style={{
-                    background: '#F28B50',
-                    border: '1px solid #BF3604',
-                    color: '#8C1C03',
-                    fontSize: '10px', fontWeight: '700',
-                    letterSpacing: '1px', textTransform: 'uppercase',
-                    padding: '3px 8px', borderRadius: '2px',
-                  }}>
-                    {typeof g === 'object' ? g.name : g}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {game.released && (
-            <div style={{
-              background: '#F2EDDC',
-              border: '1px solid rgba(140,28,3,0.2)',
-              borderRadius: '3px', padding: '8px 10px',
-            }}>
-              <p style={{
-                fontSize: '9px', fontWeight: '700', letterSpacing: '2px',
-                textTransform: 'uppercase', color: '#BF3604', marginBottom: '4px',
-              }}>Released</p>
-              <p style={{ fontSize: '12px', fontWeight: '500', color: '#8C1C03' }}>
-                {game.released} {game.developer && `· ${game.developer}`}
-              </p>
-            </div>
-          )}
+          {game.platform || '—'}{game.released ? ' · ' + String(game.released).slice(0, 4) : ''}
         </div>
       </div>
     </div>
   )
 }
 
-export default GameCard
+function menuItemStyle(active) {
+  return {
+    display: 'flex', alignItems: 'center',
+    width: '100%', padding: '7px 10px', borderRadius: 8,
+    background: active ? theme.card : 'transparent',
+    border: 'none', cursor: 'pointer',
+    fontSize: 13, color: theme.ink, fontFamily: fonts.body, textAlign: 'left',
+  }
+}
