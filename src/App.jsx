@@ -4,6 +4,7 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from './lib/supabase'
+import { loadTopEntries, saveTopList, replaceList, listGames } from './lib/topLists'
 
 import AppShell from './components/AppShell'
 import Home from './components/Home'
@@ -29,6 +30,7 @@ export default function App() {
   const [games, setGames] = useState([])
   const [profile, setProfile] = useState(DEFAULT_PROFILE)
   const [links, setLinks] = useState([])
+  const [topEntries, setTopEntries] = useState([])
   const [page, setPage] = useState('home')
   const [search, setSearch] = useState('')
   const [addOpen, setAddOpen] = useState(false)
@@ -39,14 +41,17 @@ export default function App() {
   useEffect(() => {
     (async () => {
       setLoading(true)
-      const [gamesRes, profileRes, linksRes] = await Promise.all([
+      const [gamesRes, profileRes, linksRes, topRes] = await Promise.all([
         supabase.from('games').select('*').order('created_at', { ascending: false }),
         supabase.from('profiles').select('*').eq('id', MY_PROFILE_ID).maybeSingle(),
         supabase.from('profile_links').select('*').eq('profile_id', MY_PROFILE_ID).order('sort_order'),
+        loadTopEntries(MY_PROFILE_ID),
       ])
       if (!gamesRes.error)   setGames(gamesRes.data || [])
       if (profileRes.data)   setProfile({ ...DEFAULT_PROFILE, ...profileRes.data })
       if (!linksRes.error)   setLinks(linksRes.data || [])
+      if (!topRes.error)     setTopEntries(topRes.data || [])
+      else console.error('Could not load top lists. Has supabase/phase2-migration.sql been run?', topRes.error)
       setLoading(false)
     })()
   }, [])
@@ -74,18 +79,19 @@ export default function App() {
     setGames([data[0], ...games])
   }
 
-  const handleSave = async (g) => {
+  // topChanges: [{ listType, year, gameIds }] for any top list edited in the modal
+  const handleSave = async (g, topChanges = []) => {
     const patch = {
       status: g.status,
       start_date: g.start_date || null,
       target_date: g.target_date || null,
       notes: g.notes,
       cover: g.cover,
-      rank: g.rank ?? null,
     }
     const { error } = await supabase.from('games').update(patch).eq('id', g.id)
     if (error) return console.error(error)
     setGames(games.map(x => x.id === g.id ? { ...x, ...patch } : x))
+    topChanges.forEach(c => handleSaveTopList(c.listType, c.year, c.gameIds))
     setEditing(null)
   }
 
@@ -93,6 +99,8 @@ export default function App() {
     const { error } = await supabase.from('games').delete().eq('id', id)
     if (error) return console.error(error)
     setGames(games.filter(g => g.id !== id))
+    // The database removes its top list rows automatically (on delete cascade)
+    setTopEntries(prev => prev.filter(e => e.game_id !== id))
   }
 
   const handleStatusChange = async (g, status) => {
@@ -101,23 +109,40 @@ export default function App() {
     setGames(games.map(x => x.id === g.id ? { ...x, status } : x))
   }
 
-  // ───────────────── Top 10 reorder
-  const handleReorderTopTen = async (newRanks) => {
-    // newRanks: [{ id, rank }, ...]
-    // Optimistic update first
-    const rankMap = Object.fromEntries(newRanks.map(r => [r.id, r.rank]))
-    setGames(games.map(g => g.id in rankMap ? { ...g, rank: rankMap[g.id] } : g))
+  // ───────────────── Top lists
+  // Saves a whole list. gameIds is the new order (index 0 = #1).
+  const handleSaveTopList = async (listType, year, gameIds) => {
+    // Optimistic update first, with temporary rows
+    const temp = gameIds.map((gameId, i) => ({
+      id: `temp-${listType}-${year}-${gameId}`,
+      profile_id: MY_PROFILE_ID, list_type: listType,
+      year: listType === 'year' ? year : null,
+      game_id: gameId, position: i + 1,
+    }))
+    setTopEntries(prev => replaceList(prev, listType, year, temp))
 
-    // Then persist each
-    await Promise.all(newRanks.map(r =>
-      supabase.from('games').update({ rank: r.rank }).eq('id', r.id)
-    ))
+    // Then persist, and swap in the real rows
+    const { data, error } = await saveTopList(MY_PROFILE_ID, listType, year, gameIds)
+    if (error) {
+      console.error(error)
+      // Roll back to whatever the database actually has
+      const res = await loadTopEntries(MY_PROFILE_ID)
+      if (!res.error) setTopEntries(res.data || [])
+      return
+    }
+    setTopEntries(prev => replaceList(prev, listType, year, data))
   }
 
   // ───────────────── Profile + Links
   const handleSaveProfile = async (patch) => {
     setProfile({ ...profile, ...patch })
     await supabase.from('profiles').upsert({ id: MY_PROFILE_ID, ...patch })
+  }
+
+  const handleSaveLayout = async (layout) => {
+    setProfile(prev => ({ ...prev, layout }))
+    const { error } = await supabase.from('profiles').update({ layout }).eq('id', MY_PROFILE_ID)
+    if (error) console.error('Could not save layout. Has supabase/phase2-migration.sql been run?', error)
   }
 
   const handleSaveLinks = async (newLinks) => {
@@ -153,6 +178,7 @@ export default function App() {
       ) : page === 'home' ? (
         <Home
           games={games}
+          topTen={listGames(topEntries, games, 'all_time')}
           onPickGame={setEditing}
           onNavigate={setPage}
         />
@@ -169,17 +195,27 @@ export default function App() {
         <Profile
           profile={profile}
           games={games}
+          topEntries={topEntries}
           nowPlaying={nowPlaying}
           links={links}
           isOwner={true}
           onSaveProfile={handleSaveProfile}
           onSaveLinks={handleSaveLinks}
-          onReorderTopTen={handleReorderTopTen}
+          onSaveTopList={handleSaveTopList}
+          onSaveLayout={handleSaveLayout}
         />
       )}
 
       {addOpen   && <AddGameModal onAdd={handleAdd} onClose={() => setAddOpen(false)} />}
-      {editing   && <EditGameModal game={editing} onSave={handleSave} onClose={() => setEditing(null)} />}
+      {editing   && (
+        <EditGameModal
+          game={editing}
+          games={games}
+          topEntries={topEntries}
+          onSave={handleSave}
+          onClose={() => setEditing(null)}
+        />
+      )}
     </AppShell>
   )
 }

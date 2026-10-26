@@ -3,7 +3,7 @@
 
 import { theme, fonts, LINK_PLATFORMS } from '../lib/theme'
 
-function PlatformIcon({ name, size = 20, color = 'currentColor' }) {
+export function PlatformIcon({ name, size = 20, color = 'currentColor' }) {
   const p = { width: size, height: size, viewBox: '0 0 24 24', fill: color }
   switch (name) {
     case 'twitch':    return <svg {...p}><path d="M4 2v16h4v4l4-4h4l6-6V2H4zm16 9l-3 3h-4l-3 3v-3H6V4h14v7zM15 7h2v5h-2V7zm-5 0h2v5h-2V7z"/></svg>

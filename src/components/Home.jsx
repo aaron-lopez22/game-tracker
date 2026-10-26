@@ -4,9 +4,9 @@
 import { theme, fonts, btn } from '../lib/theme'
 import Cover from './Cover'
 
-export default function Home({ games = [], onPickGame, onNavigate }) {
+export default function Home({ games = [], topTen = [], onPickGame, onNavigate }) {
   const playing = games.filter(g => g.status === 'Playing')
-  const top10   = games.filter(g => g.rank > 0).sort((a, b) => a.rank - b.rank).slice(0, 10)
+  const top10   = topTen.slice(0, 10)
   const backlog = games.filter(g => g.status === 'Backlog').slice(0, 6)
 
   const counts = {
@@ -107,17 +107,17 @@ export default function Home({ games = [], onPickGame, onNavigate }) {
                 <button onClick={() => onNavigate?.('profile')} style={{ fontSize: 12, color: theme.accent, cursor: 'pointer', fontWeight: 600, background: 'transparent', border: 'none' }}>View profile →</button>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10 }}>
-                {top10.map(g => (
+                {top10.map((g, i) => (
                   <button key={g.id} onClick={() => onPickGame?.(g)} style={{ position: 'relative', background: 'transparent', border: 'none', padding: 0, cursor: 'pointer' }}>
-                    <Cover src={g.cover} title={g.title} width="100%" height={140} radius={10} tint={g.rank <= 3 ? 'warm' : undefined} />
+                    <Cover src={g.cover} title={g.title} width="100%" height={140} radius={10} tint={i < 3 ? 'warm' : undefined} />
                     <div style={{
                       position: 'absolute', top: 6, left: 6,
                       width: 24, height: 24, borderRadius: 8,
-                      background: g.rank <= 3 ? theme.accent : theme.ink,
-                      color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      background: i < 3 ? theme.accent : theme.ink,
+                      color: i < 3 ? '#fff' : theme.bg, display: 'flex', alignItems: 'center', justifyContent: 'center',
                       fontFamily: fonts.display, fontSize: 13, fontWeight: 800,
                       boxShadow: '0 2px 6px rgba(0,0,0,0.25)',
-                    }}>{g.rank}</div>
+                    }}>{i + 1}</div>
                     <div style={{
                       marginTop: 6, fontSize: 11, fontWeight: 500, color: theme.ink,
                       lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis',

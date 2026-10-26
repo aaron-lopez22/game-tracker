@@ -1,45 +1,93 @@
 // Profile — the public sharable profile page.
-// Shows: banner with bio + Now Playing, Top 10 (drag-to-reorder), LinkTree,
-// Recently Completed shelf, by-the-numbers stats.
+// Fixed banner (avatar, name, bio, Now Playing) on top, then a grid of
+// widgets the owner can reorder, resize, and hide with Arrange.
 
 import { useState } from 'react'
 import { theme, fonts, btn } from '../lib/theme'
+import { currentYear, listGames, listIds, listYears } from '../lib/topLists'
+import { normalizeLayout } from '../lib/layout'
 import Avatar from './Avatar'
 import Cover from './Cover'
-import TopTen from './TopTen'
-import LinkTree from './LinkTree'
+import Icon from './Icon'
+import LiveBadge from './LiveBadge'
 import LinkEditor from './LinkEditor'
+import TopListEditor from './TopListEditor'
+import ArrangeMode from './ArrangeMode'
+import { WIDGETS } from './widgets'
 
 export default function Profile({
-  profile,              // { username, display, bio, avatar_url, joined }
-  games = [],           // all games (for Top 10 + completed)
+  profile,              // { username, display, bio, avatar_url, joined, layout }
+  games = [],           // all games (for top lists + completed)
+  topEntries = [],      // rows from top_entries (both lists, all years)
   nowPlaying,           // single game currently playing
   links = [],           // array of { id, platform, url, label, enabled }
   isOwner = false,      // show edit UI?
   onSaveProfile,        // (patch) => void
   onSaveLinks,          // (newLinks) => void
-  onReorderTopTen,      // (newRanks) => void
+  onSaveTopList,        // (listType, year, gameIds) => void
+  onSaveLayout,         // (layout) => void
 }) {
   const [editing, setEditing] = useState(false)
   const [draftProfile, setDraftProfile] = useState(profile)
   const [draftLinks, setDraftLinks] = useState(links)
+  const [editingList, setEditingList] = useState(null) // null | 'all_time' | 'year'
+  const [arranging, setArranging] = useState(false)
+  const [year, setYear] = useState(currentYear())
 
-  const topTen = games.filter(g => g.rank && g.rank > 0)
-  const completed = games
-    .filter(g => g.status === 'Completed')
-    .sort((a, b) => (b.updated_at || '').localeCompare(a.updated_at || ''))
-    .slice(0, 8)
+  const layout = normalizeLayout(profile.layout)
+  const allTime = listGames(topEntries, games, 'all_time')
+  const yearGames = listGames(topEntries, games, 'year', year)
+  const years = [...new Set([year, ...listYears(topEntries)])].sort((a, b) => b - a)
 
-  const stats = {
-    completed: games.filter(g => g.status === 'Completed').length,
-    playing:   games.filter(g => g.status === 'Playing').length,
-    backlog:   games.filter(g => g.status === 'Backlog').length,
-    dropped:   games.filter(g => g.status === 'Dropped').length,
-    hours: games.reduce((s, g) => s + (g.playtime || 0), 0),
+  const startEditList = (listType) => {
+    setEditingList(listType)
+    window.scrollTo(0, 0)
   }
 
+  if (editingList) {
+    const isYear = editingList === 'year'
+    return (
+      <TopListEditor
+        title={isYear ? `Best of ${year}` : 'All-Time Top 10'}
+        games={games}
+        initialIds={listIds(topEntries, editingList, year)}
+        onCancel={() => setEditingList(null)}
+        onDone={(ids) => {
+          onSaveTopList?.(editingList, isYear ? year : null, ids)
+          setEditingList(null)
+        }}
+      />
+    )
+  }
+
+  if (arranging) {
+    return (
+      <ArrangeMode
+        layout={layout}
+        preview={{ profile, games, allTime, yearGames, year, nowPlaying, links }}
+        onCancel={() => setArranging(false)}
+        onDone={(newLayout) => {
+          onSaveLayout?.(newLayout)
+          setArranging(false)
+        }}
+      />
+    )
+  }
+
+  // Props each widget needs, keyed by layout kind
+  const widgetProps = {
+    top_all_time:      { games: allTime, ownerName: profile.display, isOwner, onEdit: () => startEditList('all_time') },
+    top_year:          { games: yearGames, year, years, onYearChange: setYear, isOwner, onEdit: () => startEditList('year') },
+    now_playing:       { nowPlaying },
+    links:             { links, isOwner },
+    recent_completed:  { games },
+    stats:             { games },
+    currently_playing: { games },
+  }
+  const visible = layout.filter(w => !w.hidden)
+
   const saveAll = () => {
-    onSaveProfile?.(draftProfile)
+    onSaveProfile?.({ display: draftProfile.display, bio: draftProfile.bio })
     onSaveLinks?.(draftLinks)
     setEditing(false)
   }
@@ -122,7 +170,12 @@ export default function Profile({
         {isOwner && (
           <div style={{ marginTop: 22, display: 'flex', gap: 10 }}>
             {!editing ? (
-              <button onClick={() => setEditing(true)} style={btn.primary}>Edit profile</button>
+              <>
+                <button onClick={() => setEditing(true)} style={btn.primary}>Edit profile</button>
+                <button onClick={() => { setArranging(true); window.scrollTo(0, 0) }} style={btn.ghost}>
+                  <Icon name="grid" size={14} /> Arrange
+                </button>
+              </>
             ) : (
               <>
                 <button onClick={saveAll} style={btn.accent}>Save changes</button>
@@ -133,95 +186,38 @@ export default function Profile({
         )}
       </section>
 
-      {/* Link Tree (or editor in edit mode) */}
-      {(links.length > 0 || editing) && (
+      {/* Link editor (edit mode only; works even if the Links widget is hidden) */}
+      {editing && (
         <section style={{ marginTop: 28 }}>
           <h2 style={{ fontFamily: fonts.display, fontSize: 28, fontWeight: 800, letterSpacing: '-0.025em', marginBottom: 14 }}>
             Find me online ✦
           </h2>
-          {editing ? (
-            <LinkEditor links={draftLinks} onChange={setDraftLinks} />
-          ) : (
-            <LinkTree links={links} columns={4} compact />
-          )}
+          <LinkEditor links={draftLinks} onChange={setDraftLinks} />
         </section>
       )}
 
-      {/* Top 10 */}
-      <section style={{ marginTop: 36 }}>
-        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 14 }}>
-          <div>
-            <h2 style={{ fontFamily: fonts.display, fontSize: 36, fontWeight: 800, letterSpacing: '-0.03em' }}>Top 10 🏆</h2>
-            {isOwner && <p style={{ color: theme.muted, fontSize: 13, marginTop: 4 }}>Drag tiles to reorder.</p>}
+      {/* Widgets */}
+      {visible.length === 0 ? (
+        isOwner && (
+          <div style={{ marginTop: 36, padding: 32, borderRadius: 20, border: `2px dashed ${theme.faint}`, color: theme.muted, textAlign: 'center', fontSize: 14 }}>
+            Every section is hidden. Use Arrange to add some back.
           </div>
-        </div>
-        <TopTen games={topTen} onReorder={onReorderTopTen} editable={isOwner} />
-      </section>
-
-      {/* Stats + recent completions */}
-      <section style={{ marginTop: 36, display: 'grid', gridTemplateColumns: '1fr 1.6fr', gap: 20 }}>
-        <div style={{ background: theme.surface, borderRadius: 20, padding: 24, boxShadow: theme.shadow }}>
-          <h3 style={{ fontFamily: fonts.display, fontSize: 22, fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 18 }}>By the numbers</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            {[
-              ['Completed', stats.completed, theme.statusCompleted],
-              ['Now playing', stats.playing, theme.statusPlaying],
-              ['Backlog', stats.backlog, theme.statusBacklog],
-              ['Dropped', stats.dropped, theme.muted],
-            ].map(([k, v, color]) => (
-              <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{ width: 8, height: 8, borderRadius: '50%', background: color }} />
-                <div style={{ flex: 1, fontSize: 14, color: theme.ink }}>{k}</div>
-                <div style={{ fontFamily: fonts.display, fontSize: 22, fontWeight: 700, color: theme.ink }}>{v}</div>
+        )
+      ) : (
+        <div style={{
+          marginTop: 36, display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+          gap: '36px 24px', alignItems: 'start',
+        }}>
+          {visible.map(w => {
+            const Widget = WIDGETS[w.kind]
+            return (
+              <div key={w.kind} style={{ gridColumn: w.size === 'full' ? 'span 2' : 'span 1', minWidth: 0 }}>
+                <Widget {...widgetProps[w.kind]} size={w.size} />
               </div>
-            ))}
-          </div>
-          {stats.hours > 0 && (
-            <div style={{ marginTop: 22, padding: 16, borderRadius: 14, background: theme.blush, textAlign: 'center' }}>
-              <div style={{ fontFamily: fonts.display, fontSize: 44, fontWeight: 800, color: theme.ink, lineHeight: 1 }}>{stats.hours.toLocaleString()}h</div>
-              <div style={{ fontSize: 12, color: theme.muted, marginTop: 4 }}>logged across {stats.completed + stats.playing} games</div>
-            </div>
-          )}
+            )
+          })}
         </div>
-
-        <div>
-          <h3 style={{ fontFamily: fonts.display, fontSize: 22, fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 14 }}>Recently completed ✓</h3>
-          {completed.length === 0 ? (
-            <div style={{ padding: 24, background: theme.surface, borderRadius: 16, color: theme.muted, fontSize: 13 }}>
-              Nothing completed yet.
-            </div>
-          ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
-              {completed.map(g => (
-                <div key={g.id} style={{ background: theme.surface, borderRadius: 14, overflow: 'hidden', boxShadow: theme.shadow }}>
-                  <Cover src={g.cover} title={g.title} width="100%" height={170} radius={0} />
-                  <div style={{ padding: 12 }}>
-                    <div style={{ fontFamily: fonts.display, fontSize: 14, fontWeight: 700, color: theme.ink, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{g.title}</div>
-                    <div style={{ fontFamily: fonts.mono, fontSize: 10, color: theme.muted, marginTop: 4 }}>{(g.target_date || '').slice(0, 10) || 'completed'}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
+      )}
     </div>
-  )
-}
-
-function LiveBadge() {
-  return (
-    <span style={{
-      display: 'inline-flex', alignItems: 'center', gap: 6,
-      padding: '3px 9px 3px 7px', borderRadius: 999,
-      background: theme.accent2, color: '#fff', fontSize: 10, fontWeight: 700,
-      letterSpacing: '0.06em', textTransform: 'uppercase',
-    }}>
-      <span style={{
-        width: 6, height: 6, borderRadius: '50%', background: '#fff',
-        animation: 'hearth-pulse 1.6s ease-in-out infinite',
-      }} />
-      live
-    </span>
   )
 }
