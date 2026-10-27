@@ -40,7 +40,7 @@ export default function GameCard({ game, onEdit, onDelete, onStatusChange }) {
           style={{
             position: 'absolute', top: isMobile ? 4 : 8, right: isMobile ? 4 : 8,
             width: isMobile ? 44 : 28, height: isMobile ? 44 : 28, borderRadius: isMobile ? 12 : 8, border: 'none',
-            background: 'rgba(255,255,255,0.92)', cursor: 'pointer',
+            background: theme.surface + 'EB', cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             color: theme.ink, fontSize: 14, fontWeight: 700,
             backdropFilter: 'blur(6px)',

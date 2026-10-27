@@ -150,7 +150,7 @@ export default function Profile({
                 style={{
                   fontFamily: fonts.display, fontSize: 64, fontWeight: 700,
                   letterSpacing: '-0.035em', color: theme.ink, lineHeight: 1,
-                  marginTop: 6, background: 'rgba(255,255,255,0.4)', border: 'none',
+                  marginTop: 6, background: theme.surface + '99', border: 'none',
                   borderRadius: 8, padding: '4px 8px', width: '100%', outline: 'none',
                 }}
               />
@@ -167,7 +167,7 @@ export default function Profile({
                 rows={2}
                 style={{
                   marginTop: 12, fontSize: 16, color: theme.ink, maxWidth: 540,
-                  width: '100%', background: 'rgba(255,255,255,0.4)', border: 'none',
+                  width: '100%', background: theme.surface + '99', border: 'none',
                   borderRadius: 8, padding: 10, fontFamily: fonts.body, outline: 'none',
                   resize: 'none',
                 }}
@@ -246,7 +246,7 @@ export default function Profile({
 // Mobile banner (mockup M3): stacked, same gradient as desktop, round link icons.
 function MobileBanner({ draftProfile, setDraftProfile, editing, nowPlaying, links, buttons }) {
   const shown = links.filter(l => l.enabled !== false && l.url)
-  const field = { background: 'rgba(255,255,255,0.4)', border: 'none', borderRadius: 8, outline: 'none', color: theme.ink, width: '100%' }
+  const field = { background: theme.surface + '99', border: 'none', borderRadius: 8, outline: 'none', color: theme.ink, width: '100%' }
   return (
     <section style={{
       background: `linear-gradient(135deg, ${theme.blush} 0%, ${theme.sage} 100%)`,

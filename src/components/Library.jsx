@@ -67,11 +67,13 @@ export default function Library({ games = [], search = '', onSearchChange, onEdi
         {['All', ...STATUSES].map(s => {
           const color = s === 'All' ? theme.ink : statusColor(s)
           const active = status === s
+          // "All" fills with ink, so its text uses the page color (readable in light + dark)
+          const activeText = s === 'All' ? theme.bg : '#fff'
           return (
             <button key={s} onClick={() => setStatus(s)} style={{
               padding: '8px 14px', borderRadius: 999, flex: 'none',
               background: active ? color : theme.surface,
-              color: active ? '#fff' : theme.ink,
+              color: active ? activeText : theme.ink,
               border: 'none', cursor: 'pointer', fontWeight: 600,
               fontSize: 13, fontFamily: fonts.body,
               display: 'inline-flex', alignItems: 'center', gap: 8,
@@ -82,7 +84,7 @@ export default function Library({ games = [], search = '', onSearchChange, onEdi
                 padding: '1px 7px', borderRadius: 999,
                 background: active ? 'rgba(255,255,255,0.25)' : theme.card,
                 fontSize: 10, fontWeight: 700,
-                color: active ? '#fff' : theme.muted,
+                color: active ? activeText : theme.muted,
               }}>{counts[s]}</span>
             </button>
           )
