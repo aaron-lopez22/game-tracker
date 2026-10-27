@@ -3,6 +3,7 @@
 
 import { useState } from 'react'
 import { theme, fonts, btn, LINK_PLATFORMS } from '../lib/theme'
+import useIsMobile from '../lib/useIsMobile'
 import { LinkPill } from './LinkTree'
 
 const PLATFORM_KEYS = Object.keys(LINK_PLATFORMS)
@@ -25,6 +26,10 @@ export default function LinkEditor({ links = [], onChange }) {
   const patch = (id, p) => update(draft.map(l => l.id === id ? { ...l, ...p } : l))
   const remove = (id) => update(draft.filter(l => l.id !== id))
 
+  // Mobile: platform + buttons on the first line, URL and label on their own lines
+  const isMobile = useIsMobile()
+  const fullRow = isMobile ? { gridColumn: '1 / -1', order: 1 } : {}
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       {draft.length === 0 && (
@@ -37,7 +42,7 @@ export default function LinkEditor({ links = [], onChange }) {
         const p = LINK_PLATFORMS[l.platform] || LINK_PLATFORMS.custom
         return (
           <div key={l.id} style={{
-            display: 'grid', gridTemplateColumns: '140px 1fr 1fr auto auto', gap: 8,
+            display: 'grid', gridTemplateColumns: isMobile ? 'minmax(0, 1fr) auto auto' : '140px 1fr 1fr auto auto', gap: 8,
             padding: 10, background: theme.surface, borderRadius: 12, boxShadow: theme.shadow,
             alignItems: 'center',
           }}>
@@ -49,12 +54,12 @@ export default function LinkEditor({ links = [], onChange }) {
             <input
               type="url" value={l.url} placeholder={`https://${p.label.toLowerCase().replace(/[^a-z]/g, '')}.com/you`}
               onChange={(e) => patch(l.id, { url: e.target.value })}
-              style={inputStyle}
+              style={{ ...inputStyle, ...fullRow }}
             />
             <input
               type="text" value={l.label || ''} placeholder={`Label (defaults to "${p.label}")`}
               onChange={(e) => patch(l.id, { label: e.target.value })}
-              style={inputStyle}
+              style={{ ...inputStyle, ...fullRow }}
             />
             <button onClick={() => patch(l.id, { enabled: !l.enabled })}
               title={l.enabled ? 'Hide on profile' : 'Show on profile'}
@@ -82,7 +87,7 @@ export default function LinkEditor({ links = [], onChange }) {
             fontSize: 11, color: theme.muted, fontWeight: 600,
             letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 8,
           }}>Preview</div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 }}>
             {draft.filter(l => l.enabled && l.url).map(l => (
               <LinkPill key={l.id} link={l} compact />
             ))}

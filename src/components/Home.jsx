@@ -2,9 +2,13 @@
 // Top 10 strip, backlog peek.
 
 import { theme, fonts, btn } from '../lib/theme'
+import useIsMobile from '../lib/useIsMobile'
 import Cover from './Cover'
+import RankBadge from './RankBadge'
+import SectionHead from './widgets/SectionHead'
 
 export default function Home({ games = [], topTen = [], onPickGame, onNavigate }) {
+  const isMobile = useIsMobile()
   const playing = games.filter(g => g.status === 'Playing')
   const top10   = topTen.slice(0, 10)
   const backlog = games.filter(g => g.status === 'Backlog').slice(0, 6)
@@ -23,6 +27,16 @@ export default function Home({ games = [], topTen = [], onPickGame, onNavigate }
     if (h < 17) return 'Good afternoon'
     return 'Good evening'
   })()
+
+  if (isMobile) {
+    return (
+      <MobileHome
+        greeting={greeting} counts={counts} hours={hours}
+        playing={playing} top10={top10} backlog={backlog.slice(0, 3)}
+        onPickGame={onPickGame} onNavigate={onNavigate}
+      />
+    )
+  }
 
   return (
     <div style={{ padding: '24px 36px 60px' }}>
@@ -154,6 +168,88 @@ export default function Home({ games = [], topTen = [], onPickGame, onNavigate }
             </button>
           </div>
         </aside>
+      </div>
+    </div>
+  )
+}
+
+// Mobile Home (mockup M1): 2×2 stats, stacked rows, Top 10 scroll strip, 3-col Up next.
+function MobileHome({ greeting, counts, hours, playing, top10, backlog, onPickGame, onNavigate }) {
+  const linkBtn = { fontSize: 13, fontWeight: 600, color: theme.accent, background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: fonts.body }
+  return (
+    <div style={{ padding: '8px 20px 24px', display: 'flex', flexDirection: 'column', gap: 26 }}>
+      <h1 style={{ fontFamily: fonts.display, fontSize: 30, fontWeight: 700, letterSpacing: '-0.03em', color: theme.ink, lineHeight: 1.1 }}>
+        {greeting} 👋
+      </h1>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+        {[
+          ['Playing', counts.Playing, theme.accent],
+          ['Backlog', counts.Backlog, theme.accent3],
+          ['Completed', counts.Completed, theme.accent2],
+          ['Hours', hours.toLocaleString(), theme.ink],
+        ].map(([k, v, c]) => (
+          <div key={k} style={{ background: theme.surface, borderRadius: 16, padding: 14, boxShadow: theme.shadow }}>
+            <div style={{ fontFamily: fonts.display, fontSize: 26, fontWeight: 700, color: c, lineHeight: 1 }}>{v}</div>
+            <div style={{ fontSize: 12, color: theme.muted, marginTop: 4 }}>{k}</div>
+          </div>
+        ))}
+      </div>
+
+      <div>
+        <SectionHead title="Currently playing" size={21} />
+        {playing.length === 0 ? (
+          <div style={{ padding: 20, background: theme.surface, borderRadius: 16, color: theme.muted, fontSize: 13, textAlign: 'center' }}>
+            No games in progress. Tap + to add one.
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {playing.map(g => (
+              <button key={g.id} onClick={() => onPickGame?.(g)} style={{
+                display: 'flex', gap: 14, alignItems: 'center', background: theme.surface, borderRadius: 16,
+                padding: 10, boxShadow: theme.shadow, border: 'none', cursor: 'pointer', textAlign: 'left', fontFamily: fonts.body,
+              }}>
+                <Cover src={g.cover} title={g.title} width={56} height={74} radius={10} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontFamily: fonts.display, fontWeight: 700, fontSize: 16, color: theme.ink, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{g.title}</div>
+                  <div style={{ fontSize: 12, color: theme.muted }}>{[g.platform, g.genre].filter(Boolean).join(' · ')}</div>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {top10.length > 0 && (
+        <div>
+          <SectionHead title="Your Top 10" size={21} right={<button onClick={() => onNavigate?.('profile')} style={linkBtn}>Profile →</button>} />
+          <div className="no-scrollbar" style={{ display: 'flex', gap: 10, overflowX: 'auto', margin: '0 -20px', padding: '0 20px' }}>
+            {top10.map((g, i) => (
+              <button key={g.id} onClick={() => onPickGame?.(g)} style={{ flex: '0 0 104px', background: 'transparent', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left', fontFamily: fonts.body }}>
+                <div style={{ position: 'relative', height: 138, borderRadius: 12, overflow: 'hidden' }}>
+                  <Cover src={g.cover} title={g.title} radius={0} tint={i < 3 ? 'warm' : undefined} />
+                  <RankBadge rank={i + 1} size={24} />
+                </div>
+                <div style={{ marginTop: 6, fontSize: 12, fontWeight: 600, color: theme.ink, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{g.title}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div>
+        <SectionHead title="Up next" size={21} right={<button onClick={() => onNavigate?.('library')} style={linkBtn}>Backlog →</button>} />
+        {backlog.length === 0 ? (
+          <div style={{ color: theme.muted, fontSize: 13, textAlign: 'center', padding: 16 }}>Backlog is empty.</div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 10 }}>
+            {backlog.map(g => (
+              <button key={g.id} onClick={() => onPickGame?.(g)} aria-label={g.title} style={{ height: 140, background: 'transparent', border: 'none', padding: 0, cursor: 'pointer' }}>
+                <Cover src={g.cover} title={g.title} radius={12} />
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )

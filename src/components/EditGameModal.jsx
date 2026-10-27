@@ -8,7 +8,8 @@ import { MAX_LIST, currentYear, listIds } from '../lib/topLists'
 import Cover from './Cover'
 import Icon from './Icon'
 import { Backdrop, Label } from './AddGameModal'
-import { modalStyle, closeBtnStyle, inputStyle } from '../lib/modalStyles'
+import { modalStyle, sheetStyle, closeBtnStyle, inputStyle } from '../lib/modalStyles'
+import useIsMobile from '../lib/useIsMobile'
 
 export default function EditGameModal({ game, games = [], topEntries = [], onSave, onClose }) {
   const [status, setStatus] = useState(game.status || 'Backlog')
@@ -16,6 +17,7 @@ export default function EditGameModal({ game, games = [], topEntries = [], onSav
   const [targetDate, setTargetDate] = useState(game.target_date || '')
   const [notes, setNotes] = useState(game.notes || '')
   const [cover, setCover] = useState(game.cover || '')
+  const isMobile = useIsMobile()
 
   // Top lists: snapshot each list when the modal opens, edit a draft copy
   const [lists] = useState(() => {
@@ -44,7 +46,7 @@ export default function EditGameModal({ game, games = [], topEntries = [], onSav
 
   return (
     <Backdrop onClose={onClose}>
-      <div style={modalStyle}>
+      <div style={{ ...modalStyle, ...(isMobile && sheetStyle) }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
           <div>
             <div style={{ fontSize: 11, color: theme.muted, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>✏️ Editing</div>
@@ -176,8 +178,8 @@ function TopListRow({ title, game, games, ids, onChange }) {
 
   return (
     <div style={{ padding: 14, background: theme.surface, borderRadius: 14, boxShadow: theme.shadow }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-        <div style={{ flex: 1 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+        <div style={{ flex: 1, minWidth: 140 }}>
           <div style={{ fontWeight: 600, fontSize: 14, color: theme.ink }}>{title}</div>
           <div style={{ fontSize: 12, color: theme.muted }}>{sub}</div>
         </div>

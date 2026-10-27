@@ -7,12 +7,13 @@ import Icon from '../Icon'
 import RankBadge from '../RankBadge'
 import SectionHead, { EmptyList } from './SectionHead'
 
-export default function TopYearWidget({ games = [], year, years = [], onYearChange, isOwner, onEdit, size }) {
+export default function TopYearWidget({ games = [], year, years = [], onYearChange, isOwner, onEdit, size, isMobile }) {
   return (
     <section>
       <SectionHead
         title={`Best of ${year}`}
-        sub="Favorite games I played this year. Past years stay on the profile."
+        sub={isMobile ? undefined : 'Favorite games I played this year. Past years stay on the profile.'}
+        size={isMobile ? 22 : 26}
         right={
           <div style={{ display: 'flex', gap: 8 }}>
             <YearPicker year={year} years={years} onChange={onYearChange} />
@@ -24,6 +25,19 @@ export default function TopYearWidget({ games = [], year, years = [], onYearChan
       />
       {games.length === 0 ? (
         <EmptyList text={`No favorites picked for ${year} yet.`} isOwner={isOwner} onAdd={onEdit} />
+      ) : isMobile ? (
+        // Mobile (mockup M3): horizontal scroll strip, bleeding to the screen edge
+        <div className="no-scrollbar" style={{ display: 'flex', gap: 10, overflowX: 'auto', margin: '0 -20px', padding: '0 20px' }}>
+          {games.map((g, i) => (
+            <div key={g.id} style={{ flex: '0 0 96px' }}>
+              <div style={{ position: 'relative', height: 128, borderRadius: 12, overflow: 'hidden' }}>
+                <Cover src={g.cover} title={g.title} radius={0} />
+                <RankBadge rank={i + 1} size={22} />
+              </div>
+              <div style={{ marginTop: 5, fontSize: 12, fontWeight: 600, color: theme.ink, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{g.title}</div>
+            </div>
+          ))}
+        </div>
       ) : (
         <div style={{
           background: theme.surface, borderRadius: 20, padding: 18, boxShadow: theme.shadow,

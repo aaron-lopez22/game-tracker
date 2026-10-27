@@ -25,7 +25,7 @@ export default function LinkTree({ links = [], compact = false, columns = 4 }) {
   return (
     <div style={{
       display: 'grid',
-      gridTemplateColumns: `repeat(${columns}, 1fr)`,
+      gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
       gap: 10,
     }}>
       {visible.map(l => <LinkPill key={l.id || l.url} link={l} compact={compact} />)}

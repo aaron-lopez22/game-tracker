@@ -1,29 +1,29 @@
-// ArrangeMode — reorder, resize, and hide profile widgets (mockup T4).
+// ArrangeMode — reorder, resize, and hide profile widgets.
+// Desktop (mockup T4): widget cards with Half/Full + hide, hidden list on the right.
+// Mobile (mockup M6): rows with an on/off switch and a ≡ drag handle.
 // Edits a draft copy of the layout; nothing is saved until Done.
 
 import { useState } from 'react'
+import { DndContext, closestCenter } from '@dnd-kit/core'
 import {
-  DndContext, PointerSensor, KeyboardSensor, useSensor, useSensors, closestCenter,
-} from '@dnd-kit/core'
-import {
-  SortableContext, useSortable, arrayMove, sortableKeyboardCoordinates, rectSortingStrategy,
+  SortableContext, useSortable, arrayMove, rectSortingStrategy, verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { theme, fonts, btn, LINK_PLATFORMS } from '../lib/theme'
 import { WIDGET_INFO } from '../lib/layout'
+import useIsMobile from '../lib/useIsMobile'
+import useDragSensors from '../lib/useDragSensors'
 import Avatar from './Avatar'
 import Cover from './Cover'
 import Icon from './Icon'
 import LiveBadge from './LiveBadge'
+import MobileEditHeader from './MobileEditHeader'
 import { PlatformIcon } from './LinkTree'
 
 export default function ArrangeMode({ layout, preview, onCancel, onDone }) {
   const [draft, setDraft] = useState(layout)
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
-  )
+  const isMobile = useIsMobile()
+  const sensors = useDragSensors(isMobile)
 
   const handleDragEnd = ({ active, over }) => {
     if (!over || active.id === over.id) return
@@ -42,6 +42,41 @@ export default function ArrangeMode({ layout, preview, onCancel, onDone }) {
   const visible = draft.filter(w => !w.hidden)
   const hidden = draft.filter(w => w.hidden)
   const nameOf = (kind) => kind === 'top_year' ? `Best of ${preview.year}` : WIDGET_INFO[kind].name
+
+  if (isMobile) {
+    return (
+      <div style={{ padding: '0 16px 24px' }}>
+        <MobileEditHeader title="Arrange profile" hint="Hold and drag ≡ to move a section" onCancel={onCancel} onDone={() => onDone?.(draft)} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {visible.length === 0 && (
+            <div style={{ padding: 20, borderRadius: 16, border: `2px dashed ${theme.faint}`, color: theme.muted, textAlign: 'center', fontSize: 14 }}>
+              Every section is hidden. Switch some on below.
+            </div>
+          )}
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={visible.map(w => w.kind)} strategy={verticalListSortingStrategy}>
+              {visible.map(w => (
+                <MobileWidgetRow key={w.kind} widget={w} name={nameOf(w.kind)} preview={preview} onHide={() => patch(w.kind, { hidden: true })} />
+              ))}
+            </SortableContext>
+          </DndContext>
+
+          {hidden.length > 0 && (
+            <div style={{ fontSize: 11, color: theme.muted, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', marginTop: 8 }}>Hidden</div>
+          )}
+          {hidden.map(w => (
+            <div key={w.kind} style={{ display: 'flex', alignItems: 'center', gap: 10, minHeight: 56, padding: '0 6px 0 14px', borderRadius: 16, border: `2px dashed ${theme.faint}` }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: 600, color: theme.muted }}>{nameOf(w.kind)}</div>
+                <div style={{ fontSize: 11, color: theme.muted }}>{WIDGET_INFO[w.kind].desc}</div>
+              </div>
+              <Switch on={false} label={`Show ${nameOf(w.kind)}`} onToggle={() => restore(w.kind)} />
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div style={{ padding: '4px 36px 60px' }}>
@@ -163,6 +198,51 @@ function WidgetCard({ widget, name, preview, onSize, onHide }) {
       </div>
       <WidgetPreview kind={widget.kind} small={widget.size === 'half'} preview={preview} />
     </div>
+  )
+}
+
+// Mobile row: name, on/off switch, ≡ handle (drags start from the handle only).
+function MobileWidgetRow({ widget, name, preview, onHide }) {
+  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({ id: widget.kind })
+  const showPreview = widget.kind === 'top_all_time' || widget.kind === 'top_year'
+  return (
+    <div ref={setNodeRef} style={{
+      transform: CSS.Translate.toString(transform), transition,
+      position: 'relative', zIndex: isDragging ? 2 : 'auto',
+      background: theme.surface, borderRadius: 18, padding: '6px 4px 6px 14px',
+      boxShadow: isDragging ? '0 16px 32px rgba(0,0,0,0.2)' : theme.shadow,
+      outline: isDragging ? `2px solid ${theme.accent}` : 'none',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, minHeight: 44 }}>
+        <div style={{ flex: 1, minWidth: 0, fontWeight: 600, color: theme.ink }}>{name}</div>
+        <Switch on label={`Hide ${name}`} onToggle={onHide} />
+        <button ref={setActivatorNodeRef} {...attributes} {...listeners} aria-label={`Drag ${name}`} style={{
+          width: 44, height: 44, border: 'none', background: 'transparent', cursor: 'grab', touchAction: 'none',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <Icon name="drag" size={20} color={theme.ink} />
+        </button>
+      </div>
+      {showPreview && (
+        <div style={{ padding: '4px 10px 8px 0', overflow: 'hidden' }}>
+          <WidgetPreview kind={widget.kind} small preview={preview} />
+        </div>
+      )}
+    </div>
+  )
+}
+
+// On/off switch with a 44×44 tap area around the visual track.
+function Switch({ on, label, onToggle }) {
+  return (
+    <button role="switch" aria-checked={on} aria-label={label} onClick={onToggle} style={{
+      width: 56, height: 44, border: 'none', background: 'transparent', cursor: 'pointer', padding: 0,
+      display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none',
+    }}>
+      <span style={{ width: 44, height: 26, borderRadius: 13, background: on ? theme.accent2 : theme.faint, position: 'relative', transition: 'background 0.15s' }}>
+        <span style={{ position: 'absolute', top: 3, left: on ? 21 : 3, width: 20, height: 20, borderRadius: '50%', background: '#fff', transition: 'left 0.15s' }} />
+      </span>
+    </button>
   )
 }
 

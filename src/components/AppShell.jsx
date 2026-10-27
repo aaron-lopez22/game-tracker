@@ -1,9 +1,12 @@
 // AppShell — top nav + page chrome shared across Home / Library / Profile.
 // Holds the current "page" state in App.jsx via the `active` + `onNavigate` props.
+// On mobile the top nav shrinks to logo + theme toggle and a bottom tab bar appears.
 
 import { theme, fonts, btn, isDark, toggleTheme } from '../lib/theme'
+import useIsMobile from '../lib/useIsMobile'
 import Avatar from './Avatar'
 import Icon from './Icon'
+import BottomTabBar, { TAB_BAR_SPACE } from './BottomTabBar'
 
 function Logo() {
   return (
@@ -23,12 +26,44 @@ function Logo() {
   )
 }
 
+function ThemeToggle() {
+  return (
+    <button onClick={toggleTheme} aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'} title={isDark ? 'Light mode' : 'Dark mode'} style={{
+      width: 36, height: 36, borderRadius: 10, border: 'none', cursor: 'pointer',
+      background: theme.surface, boxShadow: theme.shadow,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+    }}>
+      <Icon name={isDark ? 'sun' : 'moon'} size={16} color={theme.ink} />
+    </button>
+  )
+}
+
 export default function AppShell({ active = 'home', onNavigate, onAddGame, user, children, search, onSearchChange }) {
   const items = [
     { key: 'home',    label: 'Home',    icon: 'home' },
     { key: 'library', label: 'Library', icon: 'grid' },
     { key: 'profile', label: 'Profile', icon: 'user' },
   ]
+  const isMobile = useIsMobile()
+
+  if (isMobile) {
+    return (
+      <div style={{ minHeight: '100vh', background: theme.bg, color: theme.ink, fontFamily: fonts.body, fontSize: 14 }}>
+        <header style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: 'calc(8px + env(safe-area-inset-top)) 16px 4px',
+        }}>
+          <Logo />
+          <ThemeToggle />
+        </header>
+        <main style={{ paddingBottom: `calc(${TAB_BAR_SPACE}px + env(safe-area-inset-bottom))` }}>
+          {children}
+        </main>
+        <BottomTabBar active={active} onNavigate={onNavigate} onAddGame={onAddGame} />
+      </div>
+    )
+  }
+
   return (
     <div style={{
       minHeight: '100vh', background: theme.bg, color: theme.ink,
@@ -81,13 +116,7 @@ export default function AppShell({ active = 'home', onNavigate, onAddGame, user,
               Add game
             </button>
           )}
-          <button onClick={toggleTheme} aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'} title={isDark ? 'Light mode' : 'Dark mode'} style={{
-            width: 36, height: 36, borderRadius: 10, border: 'none', cursor: 'pointer',
-            background: theme.surface, boxShadow: theme.shadow,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <Icon name={isDark ? 'sun' : 'moon'} size={16} color={theme.ink} />
-          </button>
+          <ThemeToggle />
           <Avatar name={user?.display || 'You'} src={user?.avatar_url} size={36} radius={10} />
         </div>
       </header>

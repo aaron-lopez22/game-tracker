@@ -3,11 +3,13 @@
 
 import { useState } from 'react'
 import { theme, fonts, statusColor, STATUSES } from '../lib/theme'
+import useIsMobile from '../lib/useIsMobile'
 import Cover from './Cover'
 
 export default function GameCard({ game, onEdit, onDelete, onStatusChange }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [hover, setHover] = useState(false)
+  const isMobile = useIsMobile()
 
   return (
     <div
@@ -23,7 +25,7 @@ export default function GameCard({ game, onEdit, onDelete, onStatusChange }) {
       onClick={() => onEdit?.(game)}
     >
       <div style={{ position: 'relative' }}>
-        <Cover src={game.cover} title={game.title} width="100%" height={170} radius={0} />
+        <Cover src={game.cover} title={game.title} width="100%" height={isMobile ? 200 : 170} radius={0} />
         <div style={{
           position: 'absolute', top: 8, left: 8,
           padding: '3px 9px', borderRadius: 999,
@@ -36,8 +38,8 @@ export default function GameCard({ game, onEdit, onDelete, onStatusChange }) {
         <button
           onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen) }}
           style={{
-            position: 'absolute', top: 8, right: 8,
-            width: 28, height: 28, borderRadius: 8, border: 'none',
+            position: 'absolute', top: isMobile ? 4 : 8, right: isMobile ? 4 : 8,
+            width: isMobile ? 44 : 28, height: isMobile ? 44 : 28, borderRadius: isMobile ? 12 : 8, border: 'none',
             background: 'rgba(255,255,255,0.92)', cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             color: theme.ink, fontSize: 14, fontWeight: 700,
@@ -50,7 +52,7 @@ export default function GameCard({ game, onEdit, onDelete, onStatusChange }) {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              position: 'absolute', top: 42, right: 8, minWidth: 160,
+              position: 'absolute', top: isMobile ? 52 : 42, right: isMobile ? 4 : 8, minWidth: 160,
               background: theme.surface, borderRadius: 12, padding: 6,
               boxShadow: '0 8px 28px rgba(0,0,0,0.18), 0 0 0 1px ' + theme.rule,
               zIndex: 10,

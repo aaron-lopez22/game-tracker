@@ -1,10 +1,11 @@
 // AddGameModal — RAWG search + status + notes. Hearth visual style.
 // Behavior matches your existing modal. Pass onAdd({ ...gameFields }) to commit.
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { theme, fonts, btn, STATUSES, statusColor } from '../lib/theme'
+import useIsMobile from '../lib/useIsMobile'
 import Cover from './Cover'
-import { modalStyle, closeBtnStyle, inputStyle } from '../lib/modalStyles'
+import { modalStyle, sheetStyle, closeBtnStyle, inputStyle } from '../lib/modalStyles'
 
 const API_KEY = import.meta.env.VITE_RAWG_API_KEY
 
@@ -18,6 +19,7 @@ export default function AddGameModal({ onAdd, onClose }) {
   const [notes, setNotes] = useState('')
   const [customCover, setCustomCover] = useState('')
   const [loading, setLoading] = useState(false)
+  const isMobile = useIsMobile()
 
   const search = async () => {
     if (!query.trim()) return
@@ -75,7 +77,7 @@ export default function AddGameModal({ onAdd, onClose }) {
 
   return (
     <Backdrop onClose={onClose}>
-      <div style={modalStyle}>
+      <div style={{ ...modalStyle, ...(isMobile && sheetStyle) }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
           <div>
             <div style={{ fontSize: 11, color: theme.muted, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>📦 New entry</div>
@@ -192,14 +194,31 @@ export default function AddGameModal({ onAdd, onClose }) {
   )
 }
 
+// Desktop: centered card. Mobile: full-height bottom sheet with a grab bar.
 export function Backdrop({ onClose, children }) {
+  const isMobile = useIsMobile()
+
+  // Stop the page behind from scrolling while the modal is open
+  useEffect(() => {
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = prev }
+  }, [])
+
   return (
     <div onClick={onClose} style={{
       position: 'fixed', inset: 0, background: 'rgba(35,32,28,0.5)',
-      backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-      zIndex: 50, padding: 20,
+      backdropFilter: 'blur(6px)', display: 'flex', justifyContent: 'center',
+      alignItems: isMobile ? 'flex-end' : 'center',
+      zIndex: 50, padding: isMobile ? 0 : 20,
     }}>
-      <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: 660, maxHeight: '90vh', overflowY: 'auto', borderRadius: 24 }}>
+      <div onClick={(e) => e.stopPropagation()} style={isMobile ? {
+        width: '100%', height: 'calc(100dvh - 24px - env(safe-area-inset-top))', overflowY: 'auto',
+        borderRadius: '24px 24px 0 0', background: theme.bg, boxShadow: '0 -12px 40px rgba(0,0,0,0.2)',
+      } : {
+        width: '100%', maxWidth: 660, maxHeight: '90vh', overflowY: 'auto', borderRadius: 24,
+      }}>
+        {isMobile && <div style={{ width: 40, height: 5, borderRadius: 3, background: theme.faint, margin: '10px auto 6px' }} />}
         {children}
       </div>
     </div>

@@ -38,3 +38,11 @@ input, textarea, select {
 /* Hide scrollbars on horizontal scrollers but keep functionality */
 .no-scrollbar { scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* Mobile safety net (components also branch on useIsMobile) */
+@media (max-width: 768px) {
+  /* Comfortable touch targets */
+  button, select { min-height: 44px; min-width: 44px; }
+  /* 16px+ text stops iPhones from zooming in when a field is focused */
+  input, select, textarea { font-size: 16px !important; }
+}

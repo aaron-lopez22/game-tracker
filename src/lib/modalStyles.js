@@ -7,6 +7,12 @@ export const modalStyle = {
   boxShadow: '0 20px 80px rgba(0,0,0,0.3)',
 }
 
+// Mobile: the modal fills a bottom sheet (see Backdrop), so drop the card look
+export const sheetStyle = {
+  padding: '4px 20px calc(24px + env(safe-area-inset-bottom))',
+  borderRadius: 0, boxShadow: 'none', minHeight: '100%',
+}
+
 export const closeBtnStyle = {
   width: 32, height: 32, borderRadius: 10, background: theme.surface, border: 'none',
   cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',

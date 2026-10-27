@@ -2,7 +2,7 @@
 
 import { theme, fonts } from '../../lib/theme'
 
-export default function StatsWidget({ games = [], size }) {
+export default function StatsWidget({ games = [], size, isMobile }) {
   const stats = {
     completed: games.filter(g => g.status === 'Completed').length,
     playing:   games.filter(g => g.status === 'Playing').length,
@@ -14,7 +14,7 @@ export default function StatsWidget({ games = [], size }) {
   return (
     <section style={{ background: theme.surface, borderRadius: 20, padding: 24, boxShadow: theme.shadow }}>
       <h3 style={{ fontFamily: fonts.display, fontSize: 22, fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 18, color: theme.ink }}>By the numbers</h3>
-      <div style={{ display: 'grid', gridTemplateColumns: size === 'full' ? 'repeat(4, minmax(0, 1fr))' : '1fr', gap: 14 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: size === 'full' && !isMobile ? 'repeat(4, minmax(0, 1fr))' : '1fr', gap: 14 }}>
         {[
           ['Completed', stats.completed, theme.statusCompleted],
           ['Now playing', stats.playing, theme.statusPlaying],

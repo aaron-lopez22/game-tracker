@@ -4,8 +4,8 @@ import { theme, fonts } from '../../lib/theme'
 import Cover from '../Cover'
 import SectionHead from './SectionHead'
 
-export default function RecentCompletedWidget({ games = [], size }) {
-  const cols = size === 'full' ? 4 : 2
+export default function RecentCompletedWidget({ games = [], size, isMobile }) {
+  const cols = size === 'full' && !isMobile ? 4 : 2
   const completed = games
     .filter(g => g.status === 'Completed')
     .sort((a, b) => (b.updated_at || '').localeCompare(a.updated_at || ''))

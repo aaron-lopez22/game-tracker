@@ -186,6 +186,7 @@ export default function App() {
         <Library
           games={games}
           search={search}
+          onSearchChange={setSearch}
           onEdit={setEditing}
           onDelete={handleDelete}
           onStatusChange={handleStatusChange}
